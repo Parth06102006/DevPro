@@ -1,0 +1,258 @@
+import { prisma } from "../config/db_connection.js";
+import ApiError from "../utils/ApiError.js";
+import ApiResponse from "../utils/ApiResponse.js";
+import asyncHandler from "../utils/asyncHandler.js";
+import openai from "../config/openai.js";
+
+const generateProjects = asyncHandler(async(req,res)=>{
+    const { programmingLanguage, techStack, title , description , difficulty } = req.body;
+    const {sessionId} = req.params;
+    if(!sessionId)
+    {
+        throw new ApiError(400,'No Session Id Found')
+    }
+
+    if(!programmingLanguage || !techStack || !title)
+    {
+        throw new ApiError(400,"Kindly Enter Languages or Tech Stack");
+    }
+
+    try {
+        const newSession = await prisma.session.findUnique({
+            where:{
+                sessionToken:sessionId,
+                //@ts-ignore
+                userId:req.user,
+            }
+        })
+        
+        if (!newSession)
+        {
+            throw new ApiError(500,"No Session Exists");
+        }
+
+        try {
+            await prisma.session.update({
+                where:{
+                    id:newSession.id
+                },
+                data:{
+                    inputLanguage:programmingLanguage,
+                    inputTechStack:techStack
+                }
+            })
+        } catch (error) {
+            //@ts-ignore
+            console.error(error.message);
+            throw new ApiError(500,"Error Updating Session")
+        }
+
+        const system_prompt = `
+        You are an AI assistant that helps generate structured software project ideas based on a given session context.
+
+        You must respond with a **single, valid JSON array** containing **multiple project objects**. Each object must exactly match this schema:
+
+        {
+        "title": string,                   // name of the project
+        "description": string,             // clear summary of what the project does
+        "difficulty": "BEGINNER" | "INTERMEDIATE" | "ADVANCED", // level of complexity
+        "programmingLanguage": string,     // e.g. "Python", "JavaScript", "C++"
+        "techStack": string[]              // list of main technologies, e.g. ["React", "Node.js", "MongoDB"]
+        }
+
+        Rules:
+        - Return a **valid JSON array** of **at least 5 project objects**.
+        - Only return JSON (no markdown, no extra text).
+        - The output must follow the schema above exactly.
+        - If difficulty is not mentioned, use "BEGINNER".
+        - Always ensure "techStack" is an array of strings.
+        - Do NOT include null values or empty strings.
+        - Do NOT include any extra keys.
+        `;
+
+        const user_prompt = `
+        Session metadata:
+        - Title: ${title ?? "Untitled"}
+        - Description: ${description ?? "No description provided."}
+        - Difficulty: ${difficulty ?? "BEGINNER"}
+        - Programming Language: ${programmingLanguage}
+        - Tech Stack: ${Array.isArray(techStack) ? techStack.join(", ") : techStack}
+
+        Task:
+        Generate **5-10 project ideas** that fit the session context above.
+        Return only a JSON array of objects with the exact keys: title, description, difficulty, programmingLanguage, techStack.
+        `;
+
+
+        const messages = [
+          { role: "system", content: system_prompt },
+          { role: "user", content: user_prompt }
+        ]
+
+        const response = await openai.chat.completions.create(
+            {
+                model: "deepseek/deepseek-r1-0528-qwen3-8b:free",
+                messages: messages as any,
+                response_format: {
+                    "type": "json_object"
+                }
+            }
+        )
+
+        const generatedProjectList = JSON.parse(((response.choices[0]?.message?.content) as unknown) as string);
+
+        if(generatedProjectList?.length === 0)
+        {
+            throw new ApiError(500,"Error Generating Projects");
+        }
+
+        for (let i = 0 ; i < generatedProjectList.projects.length ; i++)
+        {
+            if(generatedProjectList.projects[i])
+            {
+                const newItem = generatedProjectList.projects[i];
+                try {
+                    await prisma.generatedProject.create(
+                    {
+                        data:{
+                            sessionId : newSession.id,
+                            title : newItem.title,
+                            description:newItem.description,
+                            difficulty:newItem.difficulty,
+                            techStack:newItem.techStack,
+                            programmingLanguage:newItem.techStack
+                         }
+                    })
+                } catch (error) {
+                    //@ts-expect-error
+                    console.error(error.message);
+                    throw new ApiError(500,"Error Creating Generated Projects")
+                }
+            }
+        }
+
+        const generatedProjectIdeas = await prisma.generatedProject.findMany({where:{
+            sessionId:newSession.id
+        }})
+
+        return res.status(200).json(new ApiResponse(200,"Project Ideas Generated Successfully",generatedProjectIdeas))
+
+    } catch (error) {
+        //@ts-expect-error
+        console.error(error.message);
+        throw new ApiError(500,"Error Generating Projects");
+    }
+})
+
+const createProject = asyncHandler(async(req,res)=>{
+    const {selectedGenProjId} = req.query;
+    const {sessionId} = req.params;
+
+    if(!sessionId)
+    {
+        throw new ApiError(400,"No Session Id Found");
+    }
+
+    if(!selectedGenProjId)
+    {
+        throw new ApiError(400,"No Generated Project Selected");
+    }
+
+    const existingSession = await prisma.session.findUnique({
+        where:{
+            sessionToken : sessionId,
+            //@ts-ignore
+            userId:req.user
+        }
+    })
+
+    if(!existingSession)
+    {
+        throw new ApiError(400,"No Existing Session Found");
+    }
+
+    const generatedProject = await prisma.generatedProject.findUnique({
+        where:{
+            id:(selectedGenProjId as string),
+        }
+    })
+
+    if(!generatedProject)
+    {
+        throw new ApiError(400,"No Exisiting Project Found");
+    }
+
+    const system_prompt = `You are an AI assistant whose job is to take a high-level project description (from a "GeneratedProject") and produce a fully detailed Project in JSON format. 
+
+        The JSON must strictly include:
+
+        - title (string): the project title
+        - description (string): a more in-depth explanation of the project
+        - difficulty (BEGINNER | INTERMEDIATE | ADVANCED)
+        - programmingLanguage (array of strings): all relevant programming languages
+        - techStack (array of strings): all relevant technologies
+        - implementationSteps (array of objects): each object should contain:
+            - stepNumber (integer): order of the step
+            - title (string): brief step title
+            - details (string): detailed explanation of the step
+
+        Return only valid JSON. Do not include explanations, commentary, or markdown. Make sure the JSON is valid and parseable.
+        `;
+
+        const user_prompt = `
+        Here is a GeneratedProject:
+        {
+            title: ${generatedProject.title};
+            description: ${generatedProject.description};
+            difficulty: ${generatedProject.difficulty};
+            techStack: ${generatedProject.techStack};
+            programmingLanguage: ${generatedProject.programmingLanguage};
+        }
+
+        Generate a fully detailed Project JSON object including all the fields mentioned in the system prompt. The implementationSteps should break the project into actionable steps for a developer to follow.
+        `;
+
+
+        const messages = [
+          { role: "system", content: system_prompt },
+          { role: "user", content: user_prompt }
+        ]
+
+        const response = await openai.chat.completions.create(
+            {
+                model: "deepseek/deepseek-r1-0528-qwen3-8b:free",
+                messages: messages as any,
+                response_format: {
+                    "type": "json_object"
+                }
+            }
+        )
+
+    const generatedResponse = JSON.parse(((response.choices[0]?.message?.content) as unknown) as string);
+
+    console.log(generatedResponse);
+
+/*     const newStep = await prisma.step.create({
+        data:{...generatedResponse.implementationSteps}
+    }) */
+    
+
+    const newProject = await prisma.project.create({
+        data:{
+            title:generatedResponse.title   ,
+            description:generatedResponse.description, 
+            difficulty:generatedResponse.description,
+            techStack:generatedResponse.techStack,
+            programmingLanguage:generatedResponse.programmingLanguage,
+            //@ts-ignore           
+            createdById:req.user,
+            generatedFromId:generatedProject.id
+        }
+    })
+
+    return res.status(200).json(new ApiResponse(200,"Detailed Structure of Project Created"));
+
+
+})
+
+export {generateProjects,createProject}

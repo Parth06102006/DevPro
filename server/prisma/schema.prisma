@@ -27,15 +27,21 @@ model Session {
   id             String            @id @default(cuid())
   user           User?             @relation("UserSessions", fields: [userId], references: [id])
   userId         String?
+
+  // Session token for authentication
   sessionToken   String?           @unique
-  inputLanguage  String
-  inputTechStack String[]
+
+  // Inputs are optional; can be filled later
+  inputLanguage  String[]          @default([])
+  inputTechStack String[]          @default([])
+
   createdAt      DateTime          @default(now())
   updatedAt      DateTime          @updatedAt
 
   // Each session can generate multiple projects
   generatedProjects GeneratedProject[]
 }
+
 
 model GeneratedProject {
   id             String             @id @default(cuid())
@@ -45,7 +51,7 @@ model GeneratedProject {
   description    String
   difficulty     DifficultyLevel    @default(BEGINNER)
   techStack      String[]
-  programmingLanguage String
+  programmingLanguage String[]
   createdAt      DateTime           @default(now())
 
   // When user selects a project, detailed steps are generated and linked here
@@ -58,7 +64,7 @@ model Project {
   description       String
   difficulty        DifficultyLevel    @default(BEGINNER)
   techStack         String[]
-  programmingLanguage String
+  programmingLanguage String[]
   implementationSteps Step[]
   createdBy         User?              @relation("UserProjects", fields: [createdById], references: [id])
   createdById       String?
