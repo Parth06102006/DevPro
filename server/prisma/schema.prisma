@@ -1,0 +1,62 @@
+// prisma/schema.prisma
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id          String           @id @default(cuid())
+  name        String?
+  email       String?       @unique
+  password    String?
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+  projects    Project[]     @relation("UserProjects")
+  savedProjects SavedProject[]
+}
+
+model Project {
+  id            String              @id @default(cuid())
+  title         String
+  description   String
+  difficulty    DifficultyLevel   @default(BEGINNER)
+  techStack     String[]
+  programmingLanguage String
+  implementationSteps Step[]
+  createdBy     User?             @relation("UserProjects", fields: [createdById], references: [id])
+  createdById   String?
+  createdAt     DateTime          @default(now())
+  updatedAt     DateTime          @updatedAt
+  savedByUsers  SavedProject[]
+}
+
+model Step {
+  id          String       @id @default(cuid())
+  stepNumber  Int
+  title       String
+  details     String
+  project     Project   @relation(fields: [projectId], references: [id])
+  projectId   String
+}
+
+model SavedProject {
+  id          String       @id @default(cuid())
+  user        User      @relation(fields: [userId], references: [id])
+  userId      String
+  project     Project   @relation(fields: [projectId], references: [id])
+  projectId   String
+  savedAt     DateTime  @default(now())
+
+  @@unique([userId, projectId]) // prevent duplicate saves
+}
+
+enum DifficultyLevel {
+  BEGINNER
+  INTERMEDIATE
+  ADVANCED
+}
