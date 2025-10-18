@@ -20,6 +20,8 @@ const createSession = asyncHandler(async(req,res)=>{
             throw new ApiError(500,"Error Creating new Session");
         }
 
+        return res.status(200).json(new ApiResponse(200,"New Session Started",newSession))
+
     } catch (error) {
         //@ts-expect-error
         console.error(error.message);

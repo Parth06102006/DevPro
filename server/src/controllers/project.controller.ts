@@ -56,7 +56,7 @@ const generateProjects = asyncHandler(async(req,res)=>{
         "title": string,                   // name of the project
         "description": string,             // clear summary of what the project does
         "difficulty": "BEGINNER" | "INTERMEDIATE" | "ADVANCED", // level of complexity
-        "programmingLanguage": string,     // e.g. "Python", "JavaScript", "C++"
+        "programmingLanguage": string[],     // e.g. "Python", "JavaScript", "C++"
         "techStack": string[]              // list of main technologies, e.g. ["React", "Node.js", "MongoDB"]
         }
 
@@ -75,7 +75,7 @@ const generateProjects = asyncHandler(async(req,res)=>{
         - Title: ${title ?? "Untitled"}
         - Description: ${description ?? "No description provided."}
         - Difficulty: ${difficulty ?? "BEGINNER"}
-        - Programming Language: ${programmingLanguage}
+        - Programming Language: ${Array.isArray(programmingLanguage) ? programmingLanguage.join(", ") : programmingLanguage}
         - Tech Stack: ${Array.isArray(techStack) ? techStack.join(", ") : techStack}
 
         Task:
@@ -120,7 +120,7 @@ const generateProjects = asyncHandler(async(req,res)=>{
                             description:newItem.description,
                             difficulty:newItem.difficulty,
                             techStack:newItem.techStack,
-                            programmingLanguage:newItem.techStack
+                            programmingLanguage : newItem.programmingLanguage
                          }
                     })
                 } catch (error) {
@@ -236,7 +236,7 @@ const createProject = asyncHandler(async(req,res)=>{
         data:{
             title:generatedResponse.title   ,
             description:generatedResponse.description, 
-            difficulty:generatedResponse.description,
+            difficulty:generatedResponse.difficulty,
             techStack:generatedResponse.techStack,
             programmingLanguage:generatedResponse.programmingLanguage,
             //@ts-ignore           
@@ -321,4 +321,90 @@ const saveProject = asyncHandler(async(req,res)=>{
     return res.status(200).json(new ApiResponse(200,"Project Saved Successfully",project_saved))
 })
 
-export {generateProjects,createProject}
+const getProjectInfo = asyncHandler(async(req,res)=>{
+    const {selectedGenProjId} = req.query;
+    const {sessionId} = req.params;
+
+    if(!sessionId)
+    {
+        throw new ApiError(400,"No Session Id Found");
+    }
+
+    if(!selectedGenProjId)
+    {
+        throw new ApiError(400,"No Generated Project Selected");
+    }
+
+    const existingSession = await prisma.session.findUnique({
+        where:{
+            sessionToken : sessionId,
+            //@ts-ignore
+            userId:req.user
+        }
+    })
+
+    if(!existingSession)
+    {
+        throw new ApiError(400,"No Existing Session Found");
+    }
+
+    const generatedProject = await prisma.generatedProject.findUnique({
+        where:{
+            id:(selectedGenProjId as string),
+        }
+    })
+
+    if(!generatedProject)
+    {
+        throw new ApiError(400,"No Exisiting Project Found");
+    }
+
+    const projectWithSteps = await prisma.project.findUnique({
+        where:{generatedFromId:generatedProject.id},
+        include:{implementationSteps:true}
+    })
+
+
+    return res.status(200).json(new ApiResponse(200,"Detailed Structure of Project Fetched",projectWithSteps));
+})
+
+const getGeneratedProjectList = asyncHandler(async(req,res)=>{
+    const {sessionId} = req.params;
+    if(!sessionId)
+    {
+        throw new ApiError(400,'No Session Id Found')
+    }
+
+    let exisitingSession;
+    try {
+        exisitingSession = await prisma.session.findUnique({
+            where:{
+                sessionToken:sessionId,
+                //@ts-ignore
+                userId:req.user,
+            }
+        })
+        
+        if (!exisitingSession)
+        {
+            throw new ApiError(500,"No Session Exists");
+        }
+
+    } catch (error) {
+        //@ts-ignore
+        console.error(error.message);
+        throw new ApiError(500,"Error Fetcing Session")
+    }
+
+    const generatedProjectIdeas = await prisma.generatedProject.findMany({
+        where:{
+            sessionId:exisitingSession.id
+        }
+    });
+
+    console.log(generatedProjectIdeas);
+
+    return res.status(200).json(new ApiResponse(200,"Fetched Generated Project List",generatedProjectIdeas))
+})
+
+export {generateProjects,createProject,saveProject,getProjectInfo,getGeneratedProjectList}

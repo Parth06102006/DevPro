@@ -6,6 +6,7 @@ import { error_handler } from './middlewares/error.middleware.js';
 import userControllers from './routes/user.route.js'
 import sessionControllers from './routes/session.route.js'
 import projectControllers from './routes/project.route.js'
+import recommendationControllers from './routes/recommendation.route.js'
 
 dotenv.config();
 
@@ -23,6 +24,7 @@ app.get('/',(req:Request,res:Response)=>{
 app.use("/users",userControllers)
 app.use("/sessions",sessionControllers)
 app.use("/projects", projectControllers)
+app.use("/recommendations", recommendationControllers)
 
 app.use(error_handler);
 
