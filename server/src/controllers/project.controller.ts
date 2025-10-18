@@ -18,7 +18,7 @@ const generateProjects = asyncHandler(async(req,res)=>{
     }
 
     try {
-        const newSession = await prisma.session.findUnique({
+        const exisitingSession = await prisma.session.findUnique({
             where:{
                 sessionToken:sessionId,
                 //@ts-ignore
@@ -26,7 +26,7 @@ const generateProjects = asyncHandler(async(req,res)=>{
             }
         })
         
-        if (!newSession)
+        if (!exisitingSession)
         {
             throw new ApiError(500,"No Session Exists");
         }
@@ -34,7 +34,7 @@ const generateProjects = asyncHandler(async(req,res)=>{
         try {
             await prisma.session.update({
                 where:{
-                    id:newSession.id
+                    id:exisitingSession.id
                 },
                 data:{
                     inputLanguage:programmingLanguage,
@@ -115,7 +115,7 @@ const generateProjects = asyncHandler(async(req,res)=>{
                     await prisma.generatedProject.create(
                     {
                         data:{
-                            sessionId : newSession.id,
+                            sessionId : exisitingSession.id,
                             title : newItem.title,
                             description:newItem.description,
                             difficulty:newItem.difficulty,
@@ -132,7 +132,7 @@ const generateProjects = asyncHandler(async(req,res)=>{
         }
 
         const generatedProjectIdeas = await prisma.generatedProject.findMany({where:{
-            sessionId:newSession.id
+            sessionId:exisitingSession.id
         }})
 
         return res.status(200).json(new ApiResponse(200,"Project Ideas Generated Successfully",generatedProjectIdeas))
@@ -232,11 +232,6 @@ const createProject = asyncHandler(async(req,res)=>{
 
     console.log(generatedResponse);
 
-/*     const newStep = await prisma.step.create({
-        data:{...generatedResponse.implementationSteps}
-    }) */
-    
-
     const newProject = await prisma.project.create({
         data:{
             title:generatedResponse.title   ,
@@ -250,9 +245,80 @@ const createProject = asyncHandler(async(req,res)=>{
         }
     })
 
-    return res.status(200).json(new ApiResponse(200,"Detailed Structure of Project Created"));
+    if(!newProject)
+    {
+        throw new ApiError(500,"Error Creating New Project");
+    }
+
+    const createdSteps = await Promise.all(
+        generatedResponse.implementationSteps.map((step: any) => 
+            prisma.step.create({
+                data:{
+                    stepNumber: step.stepNumber,
+                    title: step.title,
+                    details: step.details,
+                    projectId: newProject.id 
+                }
+            })
+        )
+    );
+
+    const projectWithSteps = await prisma.project.findUnique({
+        where:{id:newProject.id},
+        include:{implementationSteps:true}
+    })
 
 
+    return res.status(200).json(new ApiResponse(200,"Detailed Structure of Project Created",projectWithSteps));
+})
+
+const saveProject = asyncHandler(async(req,res)=>{
+    const {projectId} = req.query;
+    const {sessionId} = req.params;
+
+    if(!sessionId)
+    {
+        throw new ApiError(400,"No Session Id Found");
+    }
+
+    if(!projectId)
+    {
+        throw new ApiError(400,"No Project Id Found");
+    }
+
+    const existingSession = await prisma.session.findUnique({
+        where:{
+            sessionToken : sessionId,
+            //@ts-ignore
+            userId:req.user
+        }
+    })
+
+    if(!existingSession)
+    {
+        throw new ApiError(400,"No Existing Session Found");
+    }
+
+    const existingProject = await prisma.project.findUnique({
+        where:{
+            id:(projectId as string),
+        }
+    })
+
+    if(!existingProject)
+    {
+        throw new ApiError(400,"No Exisiting Project Found");
+    }
+
+    const project_saved = await prisma.savedProject.create({
+        data:{
+            //@ts-ignore
+            userId:req.user,
+            projectId:existingProject.id
+        }
+    })
+
+    return res.status(200).json(new ApiResponse(200,"Project Saved Successfully",project_saved))
 })
 
 export {generateProjects,createProject}

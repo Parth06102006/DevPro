@@ -50,10 +50,25 @@ const getSession = asyncHandler(async(req,res)=>{
 })
 
 
-//To be implemented later on
-// const deleteSession = asyncHandler(async(req,res)=>{
+const deleteSession = asyncHandler(async(req,res)=>{
+    const {sessionId} = req.params;
 
-// })
+    if(!sessionId) throw new ApiError(400,"No Session Id Found");
+
+    try {
+        await prisma.session.delete({
+        where:{
+            sessionToken:sessionId,
+            //@ts-ignore
+            userId:req.user
+        }
+        })
+
+        return res.status(200).json(new ApiResponse(200,'Session and associated Project Deleted Successfully'));
+    } catch (error) {
+        throw new ApiError(500,"Error Deleting Session")
+    }
+})
 
 
-export {createSession,getSession}
+export {createSession,getSession,deleteSession}
