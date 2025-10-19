@@ -1,4 +1,4 @@
-import './App.css';
+import '../App.css';
 import SplitText from '../components/SplitText';
 import { useState,useEffect } from 'react';
 import {
