@@ -1,0 +1,39 @@
+<!-- Save as parth-garg-signature-b.svg -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 520 120" width="520" height="120" role="img" aria-label="Signature Parth Garg - Monoline">
+  <title>Parth Garg — Monoline Signature</title>
+
+  <rect width="100%" height="100%" fill="none"/>
+
+  <!-- Monoline text (stroke-only for a pen-like look) -->
+  <text x="12" y="70"
+        font-family="'Segoe Script', 'Brush Script MT', 'Alex Brush', cursive"
+        font-size="52"
+        fill="none"
+        stroke="#f8fafc"
+        stroke-width="1.8"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        style="letter-spacing:0.5px;">
+    Parth
+  </text>
+
+  <text x="210" y="70"
+        font-family="'Segoe Script', 'Brush Script MT', 'Alex Brush', cursive"
+        font-size="46"
+        fill="none"
+        stroke="#f8fafc"
+        stroke-width="1.8"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        style="letter-spacing:0.3px;">
+    Garg
+  </text>
+
+  <!-- tiny flourish -->
+  <path d="M6 92 C120 112, 260 40, 510 92"
+        fill="none"
+        stroke="#f8fafc"
+        stroke-width="1.6"
+        stroke-linecap="round"
+        opacity="0.95"/>
+</svg>
