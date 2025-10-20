@@ -28,10 +28,9 @@ function Landing() {
 
   const navItems = [
     { name: "Home", link: "/" },
-    { name: "Features", link: "#features" },
-    { name: "Pricing", link: "#pricing" },
+    { name: "Dasboard", link: "/dashboard" },
+    { name: "Analyze", link: "/analyze" },
     { name: "About", link: "#about" },
-    { name: "Contact", link: "#contact" },
   ];
 
   useEffect(() => {

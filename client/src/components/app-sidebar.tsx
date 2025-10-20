@@ -131,6 +131,14 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       <SidebarContent className="bg-gradient-to-b from-[#0a0f2d] via-[#081a3a] to-[#020617] border-r border-white/10 text-white shadow-[inset_0_0_30px_rgba(0,102,255,0.15)] p-3">
         <NavMain items={data.navMain} />
         <Input text="Ask , Search or Chat..."/>
+        <div className="self-center pt-5 h-fit w-fit relative">
+          <img
+            src="/asset4.png"
+            alt=""
+            className="w-40 h-30 object-contain "
+          />
+          <div className="absolute inset-0 bg-transparent bg-opacity-70 rounded-3xl mix-blend-saturation" />
+        </div>
         <NavSecondary items={data.navSecondary} className="mt-auto" />
       </SidebarContent>
       <SidebarFooter className="bg-black rounded-b-2xl border-r border-white/10 text-white">
