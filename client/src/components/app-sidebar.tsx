@@ -1,21 +1,13 @@
-"use client"
-
 import * as React from "react"
 import {
   IconCamera,
-  IconChartBar,
   IconDashboard,
-  IconDatabase,
   IconFileAi,
   IconFileDescription,
-  IconFileWord,
   IconFolder,
   IconHelp,
-  IconInnerShadowTop,
   IconListDetails,
-  IconReport,
   IconSettings,
-  IconUsers,
 } from "@tabler/icons-react"
 
 import { NavMain } from "@/components/nav-main"
@@ -42,7 +34,7 @@ const data = {
   navMain: [
     {
       title: "Dashboard",
-      url: "/dahsboard",
+      url: "/dashboard",
       icon: IconDashboard,
     },
     {
@@ -121,8 +113,8 @@ const data = {
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   return (
     <Sidebar collapsible="offcanvas" {...props}>
-      <SidebarHeader>
-        <SidebarMenu>
+      <SidebarHeader className="bg-gradient-to-b from-[#0a0f2d] via-[#081a3a] to-[#020617] text-white shadow-[inset_0_0_30px_rgba(0,102,255,0.15)] ">
+        <SidebarMenu className="m-1">
           <SidebarMenuItem>
             <SidebarMenuButton
               asChild
@@ -136,12 +128,12 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           </SidebarMenuItem>
         </SidebarMenu>
       </SidebarHeader>
-      <SidebarContent>
+      <SidebarContent className="bg-gradient-to-b from-[#0a0f2d] via-[#081a3a] to-[#020617] border-r border-white/10 text-white shadow-[inset_0_0_30px_rgba(0,102,255,0.15)] p-3">
         <NavMain items={data.navMain} />
-        <Input/>
+        <Input text="Ask , Search or Chat..."/>
         <NavSecondary items={data.navSecondary} className="mt-auto" />
       </SidebarContent>
-      <SidebarFooter>
+      <SidebarFooter className="bg-gradient-to-b from-[#0a0f2d] via-[#081a3a] to-[#020617] border-r border-white/10 text-white shadow-[inset_0_0_30px_rgba(0,102,255,0.15)]">
         <NavUser user={data.user} />
       </SidebarFooter>
     </Sidebar>

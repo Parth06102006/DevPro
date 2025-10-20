@@ -6,11 +6,15 @@ import {
   InputGroupTextarea,
 } from "@/components/ui/input-group"
 
-export default function Input() {
+type InputProps = {
+    text:string
+}
+
+export default function Input(props:InputProps) {
   return (
     <div className="grid w-full max-w-sm gap-6">
       <InputGroup>
-        <InputGroupTextarea placeholder="Ask, Search or Chat..." />
+        <InputGroupTextarea placeholder={props.text} />
         <InputGroupAddon align={"block-end"}  className="justify-end cursor-pointer">
           <InputGroupButton
             variant="default"

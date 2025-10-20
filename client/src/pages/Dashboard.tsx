@@ -16,10 +16,11 @@ export default function Dashboard() {
           "--header-height": "calc(var(--spacing) * 12)",
         } as React.CSSProperties
       }
+      className="dark bg-[#040212]"
     >
-      <AppSidebar variant="inset" />
-      <SidebarInset>
-        <SiteHeader />
+      <AppSidebar variant="inset" className="dark bg-[#040212]"/>
+      <SidebarInset className="dark bg-[#040212]">
+        <SiteHeader/>
         <div className="flex flex-1 flex-col">
           <div className="@container/main flex flex-1 flex-col gap-2">
             <div className="flex flex-col gap-4 py-4 md:gap-6 md:py-6">
