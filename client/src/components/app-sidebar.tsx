@@ -113,14 +113,14 @@ const data = {
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   return (
     <Sidebar collapsible="offcanvas" {...props}>
-      <SidebarHeader className="bg-gradient-to-b from-[#0a0f2d] via-[#081a3a] to-[#020617] text-white shadow-[inset_0_0_30px_rgba(0,102,255,0.15)] ">
+      <SidebarHeader className="bg-slate-950 text-white rounded-t-md">
         <SidebarMenu className="m-1">
           <SidebarMenuItem>
             <SidebarMenuButton
               asChild
               className="data-[slot=sidebar-menu-button]:!p-1.5"
             >
-              <Link to='/landing' className="">
+              <Link to='/' className="">
                 <img src="/logo.png" alt="" className="w-8 h-8 object-cover border border-black rounded-xl"/>
                 <span className="text-base font-bold">DevPro</span>
               </Link>
@@ -133,7 +133,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         <Input text="Ask , Search or Chat..."/>
         <NavSecondary items={data.navSecondary} className="mt-auto" />
       </SidebarContent>
-      <SidebarFooter className="bg-gradient-to-b from-[#0a0f2d] via-[#081a3a] to-[#020617] border-r border-white/10 text-white shadow-[inset_0_0_30px_rgba(0,102,255,0.15)]">
+      <SidebarFooter className="bg-black rounded-b-2xl border-r border-white/10 text-white">
         <NavUser user={data.user} />
       </SidebarFooter>
     </Sidebar>

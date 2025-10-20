@@ -7,6 +7,7 @@ import Login from './pages/Login'
 import Dashboard from './pages/Dashboard'
 import Sessions from './pages/Sessions'
 import Create from './pages/Create'
+import SavedProjects from './pages/SavedProjects'
 
 const App = () => {
   return (
@@ -18,6 +19,7 @@ const App = () => {
         <Route path='/dashboard' element={<Dashboard/>}/>
         <Route path='/sessions' element={<Sessions/>}/>
         <Route path='/create' element={<Create/>}/>
+        <Route path='/saved' element={<SavedProjects/>}/>
         <Route/>
       </Routes>
     </div>

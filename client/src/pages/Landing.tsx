@@ -23,7 +23,7 @@ import {useNavigate} from 'react-router-dom'
 
 function Landing() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const [activeCard, setActiveCard] = useState(null); // Track active card for modal view
+  const [activeCard, setActiveCard] = useState<null|number>(null); // Track active card for modal view
   const navigate = useNavigate();
 
   const navItems = [
