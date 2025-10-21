@@ -7,6 +7,7 @@ import SpotlightCard from "@/components/SpotlightCard"
 import { Code2, Send, Lightbulb } from "lucide-react"
 import { useParams, useSearchParams } from "react-router-dom"
 import { generateProjectInfo, getProjectInfo } from "@/services/projectService"
+import { createSuggestion, createAnswer, getChats } from "@/services/aiService"
 import toast from "react-hot-toast"
 import {TimelineHorizontal} from "@/components/TimelineHorizontal"
 
@@ -37,6 +38,7 @@ export default function Project() {
   const [input, setInput] = useState("")
   const [data, setData] = useState<ProjectData | null>(null)
   const [loading, setLoading] = useState(true)
+  const [sendingMessage, setSendingMessage] = useState(false)
 
   useEffect(() => {
     async function generateInfo(sessionId: string, projectId: string) {
@@ -74,24 +76,88 @@ export default function Project() {
       }
     }
 
+    async function loadChats() {
+      const sessionId = params?.sessionId as string
+      const projectId = searchParams.get("projectId")
+      if (!sessionId || !projectId) {
+        return
+      }
+
+      try {
+        const response = await getChats(sessionId,projectId)
+        if (response?.data && Array.isArray(response.data)) {
+          const formattedMessages: Message[] = response.data.map((msg: any) => ({
+            role: msg.role || (msg.sender === 'user' ? 'user' : 'assistant'),
+            text: msg.text || msg.message || msg.content || ''
+          }))
+          setMessages([
+            { role: "assistant", text: "👋 Hi! I'm your DevPro Assistant. How can I help you with your project today?" },
+            ...formattedMessages
+          ])
+        }
+      } catch (error) {
+        console.error(error)
+      }
+    }
+
     getInfo()
+    loadChats()
   }, [params, searchParams])
 
-  const handleSend = () => {
-    if (!input.trim()) return
+  const handleSend = async () => {
+    if (!input.trim() || sendingMessage) return
+
+    const sessionId = params?.sessionId as string
+      const projectId = searchParams.get("projectId")
+      if (!sessionId || !projectId) {
+        return
+      }
+
+    const userMessage = input
+    setInput("")
+    setSendingMessage(true)
+
     setMessages((prev) => [
       ...prev,
-      { role: "user", text: input },
-      { role: "assistant", text: "🤖 Let me process that for you..." },
+      { role: "user", text: userMessage },
     ])
-    setInput("")
+
+    try {
+      const response = await createAnswer(sessionId, userMessage,projectId)
+      setMessages((prev) => [
+        ...prev,
+        { role: "assistant", text: response?.data?.answer || response?.data?.message || "I received your question!" },
+      ])
+    } catch (error) {
+      console.error(error)
+      toast.error("Failed to send message")
+      setMessages((prev) => [
+        ...prev,
+        { role: "assistant", text: "Sorry, I encountered an error processing your request." },
+      ])
+    } finally {
+      setSendingMessage(false)
+    }
   }
 
-  const handleSuggestion = () => {
-    setMessages((prev) => [
-      ...prev,
-      { role: "assistant", text: "💡 Here's a new project suggestion based on your interests!" },
-    ])
+  const handleSuggestion = async () => {
+    const sessionId = params?.sessionId as string
+      const projectId = searchParams.get("projectId")
+      if (!sessionId || !projectId) {
+        return
+      }
+
+    try {
+      const response = await createSuggestion(sessionId,projectId)
+      setMessages((prev) => [
+        ...prev,
+        { role: "assistant", text: response?.data?.suggestion || "💡 Here's a new project suggestion based on your interests!" },
+      ])
+      toast.success("Generated suggestion!")
+    } catch (error) {
+      console.error(error)
+      toast.error("Failed to generate suggestion")
+    }
   }
 
   return (

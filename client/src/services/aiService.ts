@@ -1,67 +1,40 @@
 import api from '../lib/api';
-
-export interface User {
-  id: string;
-  name: string;
-  email: string;
-}
-
-export interface SignupData {
-  username: string;
-  email: string;
-  password: string;
-}
-
-export interface LoginData {
-  email: string;
-  password: string;
-}
-
 export interface ApiResponse<T = any> {
   success: boolean;
   message: string;
   data?: T;
 }
 
-// User signup
-export const signUp = async (userData: SignupData): Promise<ApiResponse<{ newUser: User }>> => {
+// Create a new suggestion
+export const createSuggestion = async (sessionId: string,projectId:string): Promise<ApiResponse> => {
   try {
-    const response = await api.post('/users/signup', userData);
+    const response = await api.post(`/recommendations/${sessionId}/create?projectId=${projectId}`);
     return response.data;
   } catch (error: any) {
-    throw new Error(error.response?.data?.message || 'Signup failed');
+    throw new Error(error.response?.data?.message || 'Failed to create suggestion');
   }
 };
 
-// User login
-export const login = async (loginData: LoginData): Promise<ApiResponse> => {
+// Create an answer for a chat question
+export const createAnswer = async (sessionId: string, question: string,projectId:string): Promise<ApiResponse> => {
   try {
-    const response = await api.post('/users/login', loginData);
+    const response = await api.post(`/recommendations/${sessionId}/chat?projectId=${projectId}`, { question });
     return response.data;
   } catch (error: any) {
-    throw new Error(error.response?.data?.message || 'Login failed');
+    throw new Error(error.response?.data?.message || 'Failed to create answer');
   }
 };
 
-// User logout
-export const logout = async (): Promise<ApiResponse> => {
+// Get all chats for a session
+export const getChats = async (sessionId: string,projectId:string): Promise<ApiResponse> => {
   try {
-    const response = await api.post('/users/logout');
+    const response = await api.get(`/recommendations/${sessionId}/retrieveMessages?projectId=${projectId}`);
     return response.data;
   } catch (error: any) {
-    throw new Error(error.response?.data?.message || 'Logout failed');
+    throw new Error(error.response?.data?.message || 'Failed to retrieve chats');
   }
 };
 
-// Check authentication status
-export const checkAuth = async (): Promise<ApiResponse<{ user: User }>> => {
-  try {
-    const response = await api.post('/users/check');
-    return response.data;
-  } catch (error: any) {
-    throw new Error(error.response?.data?.message || 'Auth check failed');
-  }
-};
 
 // Utility function to handle API errors
 export const handleApiError = (error: any): string => {
