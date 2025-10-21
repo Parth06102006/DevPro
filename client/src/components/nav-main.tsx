@@ -1,5 +1,3 @@
-"use client"
-
 import { IconCirclePlusFilled, type Icon } from "@tabler/icons-react"
 import {
   SidebarGroup,
@@ -9,6 +7,8 @@ import {
   SidebarMenuItem,
 } from "@/components/ui/sidebar"
 import { useNavigate } from "react-router-dom"
+import {createSession} from '@/services/sessionService'
+import toast from "react-hot-toast"
 
 export function NavMain({
   items,
@@ -28,7 +28,18 @@ export function NavMain({
             <SidebarMenuButton
               tooltip="Quick Create"
               className="bg-white text-black min-w-8 duration-200 ease-linear "
-              onClick={()=>{navigate('/create')}}
+              onClick={()=>{
+                createSession().then((res)=>{
+                  const sessionId = res?.data?.sessionToken;
+
+                  if(!sessionId)
+                  {
+                    toast.error('Error Starting New Session')
+                  }
+                  navigate(`/create/${sessionId}`)
+                })
+              
+              }}
             >
               <IconCirclePlusFilled />
               <span>Quick Session</span>

@@ -1,5 +1,3 @@
-"use client"
-
 import * as React from "react"
 import {
   closestCenter,
@@ -26,12 +24,8 @@ import {
   IconChevronRight,
   IconChevronsLeft,
   IconChevronsRight,
-  IconCircleCheckFilled,
-  IconDotsVertical,
   IconGripVertical,
   IconLayoutColumns,
-  IconLoader,
-  IconPlus,
   IconTrendingUp,
 } from "@tabler/icons-react"
 import {
@@ -50,8 +44,9 @@ import {
   type VisibilityState,
 } from "@tanstack/react-table"
 import { Area, AreaChart, CartesianGrid, XAxis } from "recharts"
-import { toast } from "sonner"
 import { z } from "zod"
+import toast from "react-hot-toast"
+
 
 import { useIsMobile } from "@/hooks/use-mobile"
 import { Badge } from "@/components/ui/badge"
@@ -62,7 +57,6 @@ import {
   ChartTooltip,
   ChartTooltipContent,
 } from "@/components/ui/chart"
-import { Checkbox } from "@/components/ui/checkbox"
 import {
   Drawer,
   DrawerClose,
@@ -77,8 +71,6 @@ import {
   DropdownMenu,
   DropdownMenuCheckboxItem,
   DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { Input } from "@/components/ui/input"
@@ -105,19 +97,24 @@ import {
   TabsList,
   TabsTrigger,
 } from "@/components/ui/tabs"
+import { Trash2 , Eye } from 'lucide-react';
+import {Link} from "react-router-dom"
+import { deleteSession, sessionList } from "@/services/sessionService"
 
 export const schema = z.object({
-  id: z.number(),
-  header: z.string(),
-  type: z.string(),
-  status: z.string(),
-  target: z.string(),
-  limit: z.string(),
-  reviewer: z.string(),
+  id: z.string(),
+  userId: z.string(),
+  sessionToken: z.string(),
+  inputLanguage: z.array(z.string()),
+  inputTechStack: z.array(z.string()),
+  createdAt: z.union([z.string(), z.date()]),
+  updatedAt: z.union([z.string(), z.date()]),
+  generatedProjects: z.array(z.any()),
 })
 
+
 // Create a separate component for the drag handle
-function DragHandle({ id }: { id: number }) {
+function DragHandle({ id }: { id: string }) {
   const { attributes, listeners } = useSortable({
     id,
   })
@@ -136,185 +133,112 @@ function DragHandle({ id }: { id: number }) {
   )
 }
 
+
 const columns: ColumnDef<z.infer<typeof schema>>[] = [
   {
-    id: "drag",
-    header: () => null,
-    cell: ({ row }) => <DragHandle id={row.original.id} />,
-  },
-  {
-    id: "select",
-    header: ({ table }) => (
-      <div className="flex items-center justify-center">
-        <Checkbox
-          checked={
-            table.getIsAllPageRowsSelected() ||
-            (table.getIsSomePageRowsSelected() && "indeterminate")
-          }
-          onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
-          aria-label="Select all"
-        />
-      </div>
-    ),
-    cell: ({ row }) => (
-      <div className="flex items-center justify-center">
-        <Checkbox
-          checked={row.getIsSelected()}
-          onCheckedChange={(value) => row.toggleSelected(!!value)}
-          aria-label="Select row"
-        />
-      </div>
-    ),
-    enableSorting: false,
-    enableHiding: false,
-  },
-  {
-    accessorKey: "header",
-    header: "Header",
-    cell: ({ row }) => {
-      return <TableCellViewer item={row.original} />
-    },
-    enableHiding: false,
-  },
-  {
-    accessorKey: "type",
-    header: "Section Type",
+    accessorKey: "sessionToken",
+    header: "Session Name",
     cell: ({ row }) => (
       <div className="w-32">
-        <Badge variant="outline" className="text-muted-foreground px-1.5">
-          {row.original.type}
-        </Badge>
+        Session
       </div>
     ),
   },
   {
-    accessorKey: "status",
-    header: "Status",
+    accessorKey: "inputTechStack",
+    header: "Tech Stack",
     cell: ({ row }) => (
-      <Badge variant="outline" className="text-muted-foreground px-1.5">
-        {row.original.status === "Done" ? (
-          <IconCircleCheckFilled className="fill-green-500 dark:fill-green-400" />
-        ) : (
-          <IconLoader />
-        )}
-        {row.original.status}
-      </Badge>
+      <div className="flex flex-wrap gap-1 w-40">
+        {row.original.inputTechStack.map((tech, idx) => (
+          <Badge key={idx} variant="outline" className="text-muted-foreground px-1.5">
+            {tech}
+          </Badge>
+        ))}
+      </div>
     ),
   },
   {
-    accessorKey: "target",
-    header: () => <div className="w-full text-right">Target</div>,
+    accessorKey: "inputLanguage",
+    header: "Programming Language",
     cell: ({ row }) => (
-      <form
-        onSubmit={(e) => {
-          e.preventDefault()
-          toast.promise(new Promise((resolve) => setTimeout(resolve, 1000)), {
-            loading: `Saving ${row.original.header}`,
-            success: "Done",
-            error: "Error",
-          })
-        }}
-      >
-        <Label htmlFor={`${row.original.id}-target`} className="sr-only">
-          Target
-        </Label>
-        <Input
-          className="hover:bg-input/30 focus-visible:bg-background dark:hover:bg-input/30 dark:focus-visible:bg-input/30 h-8 w-16 border-transparent bg-transparent text-right shadow-none focus-visible:border dark:bg-transparent"
-          defaultValue={row.original.target}
-          id={`${row.original.id}-target`}
-        />
-      </form>
+      <div className="flex flex-wrap gap-1 w-32">
+        {row.original.inputLanguage.map((lang, idx) => (
+          <Badge key={idx} variant="outline" className="text-muted-foreground px-1.5">
+            {lang}
+          </Badge>
+        ))}
+      </div>
     ),
   },
   {
-    accessorKey: "limit",
-    header: () => <div className="w-full text-right">Limit</div>,
+    accessorKey: "createdAt",
+    header: "Created At",
     cell: ({ row }) => (
-      <form
-        onSubmit={(e) => {
-          e.preventDefault()
-          toast.promise(new Promise((resolve) => setTimeout(resolve, 1000)), {
-            loading: `Saving ${row.original.header}`,
-            success: "Done",
-            error: "Error",
-          })
-        }}
-      >
-        <Label htmlFor={`${row.original.id}-limit`} className="sr-only">
-          Limit
-        </Label>
-        <Input
-          className="hover:bg-input/30 focus-visible:bg-background dark:hover:bg-input/30 dark:focus-visible:bg-input/30 h-8 w-16 border-transparent bg-transparent text-right shadow-none focus-visible:border dark:bg-transparent"
-          defaultValue={row.original.limit}
-          id={`${row.original.id}-limit`}
-        />
-      </form>
+      <div className="w-32">
+        {new Date(row.original.createdAt).toLocaleDateString('en-US', {
+          year: 'numeric',
+          month: 'short',
+          day: 'numeric'
+        })}
+      </div>
     ),
   },
   {
-    accessorKey: "reviewer",
-    header: "Reviewer",
-    cell: ({ row }) => {
-      const isAssigned = row.original.reviewer !== "Assign reviewer"
-
-      if (isAssigned) {
-        return row.original.reviewer
-      }
-
-      return (
-        <>
-          <Label htmlFor={`${row.original.id}-reviewer`} className="sr-only">
-            Reviewer
-          </Label>
-          <Select>
-            <SelectTrigger
-              className="w-38 **:data-[slot=select-value]:block **:data-[slot=select-value]:truncate"
-              size="sm"
-              id={`${row.original.id}-reviewer`}
-            >
-              <SelectValue placeholder="Assign reviewer" />
-            </SelectTrigger>
-            <SelectContent align="end">
-              <SelectItem value="Eddie Lake">Eddie Lake</SelectItem>
-              <SelectItem value="Jamik Tashpulatov">
-                Jamik Tashpulatov
-              </SelectItem>
-            </SelectContent>
-          </Select>
-        </>
-      )
-    },
+    accessorKey: "generatedProjects",
+    header: () => <div className="text-right">Generated Projects</div>,
+    cell: ({ row }) => (
+      <div className="text-right">
+        {row.original.generatedProjects.length}
+      </div>
+    ),
   },
   {
     id: "actions",
-    cell: () => (
-      <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-          <Button
-            variant="ghost"
-            className="data-[state=open]:bg-muted text-muted-foreground flex size-8"
-            size="icon"
-          >
-            <IconDotsVertical />
-            <span className="sr-only">Open menu</span>
-          </Button>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent align="end" className="w-32">
-          <DropdownMenuItem>Edit</DropdownMenuItem>
-          <DropdownMenuItem>Make a copy</DropdownMenuItem>
-          <DropdownMenuItem>Favorite</DropdownMenuItem>
-          <DropdownMenuSeparator />
-          <DropdownMenuItem variant="destructive">Delete</DropdownMenuItem>
-        </DropdownMenuContent>
-      </DropdownMenu>
+    header: () => <div className="text-right">Actions</div>,
+    cell: ({row}) => (
+      <div className="flex justify-end">
+        <Link to={`/create/${row.original.sessionToken}`}>
+            <Button
+              variant="ghost"
+              className="data-[state=open]:bg-muted text-muted-foreground flex size-8"
+              size="icon"
+            >
+              <Eye />
+              <span className="sr-only">View details</span>
+            </Button>
+        </Link>
+        <Button
+          variant="ghost"
+          className="data-[state=open]:bg-muted text-muted-foreground flex size-8"
+          size="icon"
+          onClick={()=>{
+            const sessionId = row.original.sessionToken;
+            if(!sessionId) {
+              toast.error("Error Deleting Session");
+
+            }
+            try {
+              deleteSession(sessionId)
+              sessionList();
+            } catch (error) {
+              console.error(error.message)
+            }
+          }}
+        >
+          <Trash2 />
+          <span className="sr-only">Delete session</span>
+        </Button>
+      </div>
     ),
   },
 ]
 
+
 function DraggableRow({ row }: { row: Row<z.infer<typeof schema>> }) {
   const { transform, transition, setNodeRef, isDragging } = useSortable({
-    id: row.original.id,
+    id: row.original.sessionToken,
   })
+
 
   return (
     <TableRow
@@ -335,6 +259,7 @@ function DraggableRow({ row }: { row: Row<z.infer<typeof schema>> }) {
     </TableRow>
   )
 }
+
 
 export function DataTable({
   data: initialData,
@@ -360,10 +285,17 @@ export function DataTable({
     useSensor(KeyboardSensor, {})
   )
 
+  // Sync internal state with prop changes
+  React.useEffect(() => {
+    setData(initialData)
+  }, [initialData])
+
+
   const dataIds = React.useMemo<UniqueIdentifier[]>(
-    () => data?.map(({ id }) => id) || [],
+    () => data?.map(({ sessionToken }) => sessionToken) || [],
     [data]
   )
+
 
   const table = useReactTable({
     data,
@@ -375,7 +307,7 @@ export function DataTable({
       columnFilters,
       pagination,
     },
-    getRowId: (row) => row.id.toString(),
+    getRowId: (row) => row.sessionToken,
     enableRowSelection: true,
     onRowSelectionChange: setRowSelection,
     onSortingChange: setSorting,
@@ -390,6 +322,7 @@ export function DataTable({
     getFacetedUniqueValues: getFacetedUniqueValues(),
   })
 
+
   function handleDragEnd(event: DragEndEvent) {
     const { active, over } = event
     if (active && over && active.id !== over.id) {
@@ -401,6 +334,7 @@ export function DataTable({
     }
   }
 
+
   return (
     <Tabs
       defaultValue="outline"
@@ -410,21 +344,6 @@ export function DataTable({
         <Label htmlFor="view-selector" className="sr-only">
           View
         </Label>
-        <Select defaultValue="outline">
-          <SelectTrigger
-            className="flex w-fit @4xl/main:hidden"
-            size="sm"
-            id="view-selector"
-          >
-            <SelectValue placeholder="Select a view" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="outline">Difficulty</SelectItem>
-            <SelectItem value="past-performance">Beginner</SelectItem>
-            <SelectItem value="key-personnel">Intermediate</SelectItem>
-            <SelectItem value="focus-documents">Advanced</SelectItem>
-          </SelectContent>
-        </Select>
         <TabsList className="**:data-[slot=badge]:bg-muted-foreground/30 hidden **:data-[slot=badge]:size-5 **:data-[slot=badge]:rounded-full **:data-[slot=badge]:px-1 @4xl/main:flex">
           <TabsTrigger value="outline">Outline</TabsTrigger>
           <TabsTrigger value="past-performance">
@@ -623,6 +542,7 @@ export function DataTable({
   )
 }
 
+
 const chartData = [
   { month: "January", desktop: 186, mobile: 80 },
   { month: "February", desktop: 305, mobile: 200 },
@@ -631,6 +551,7 @@ const chartData = [
   { month: "May", desktop: 209, mobile: 130 },
   { month: "June", desktop: 214, mobile: 140 },
 ]
+
 
 const chartConfig = {
   desktop: {
@@ -643,21 +564,23 @@ const chartConfig = {
   },
 } satisfies ChartConfig
 
+
 function TableCellViewer({ item }: { item: z.infer<typeof schema> }) {
   const isMobile = useIsMobile()
+
 
   return (
     <Drawer direction={isMobile ? "bottom" : "right"}>
       <DrawerTrigger asChild>
         <Button variant="link" className="text-foreground w-fit px-0 text-left">
-          {item.header}
+          Session
         </Button>
       </DrawerTrigger>
       <DrawerContent>
         <DrawerHeader className="gap-1">
-          <DrawerTitle>{item.header}</DrawerTitle>
+          <DrawerTitle>Session Details</DrawerTitle>
           <DrawerDescription>
-            Showing total visitors for the last 6 months
+            View and edit session information
           </DrawerDescription>
         </DrawerHeader>
         <div className="flex flex-col gap-4 overflow-y-auto px-4 text-sm">
@@ -710,86 +633,42 @@ function TableCellViewer({ item }: { item: z.infer<typeof schema> }) {
                   <IconTrendingUp className="size-4" />
                 </div>
                 <div className="text-muted-foreground">
-                  Showing total visitors for the last 6 months. This is just
-                  some random text to test the layout. It spans multiple lines
-                  and should wrap around.
+                  Session activity and project generation statistics.
                 </div>
               </div>
               <Separator />
             </>
           )}
-          <form className="flex flex-col gap-4">
+          <div className="flex flex-col gap-4">
             <div className="flex flex-col gap-3">
-              <Label htmlFor="header">Header</Label>
-              <Input id="header" defaultValue={item.header} />
+              <Label htmlFor="sessionToken">Session Token</Label>
+              <Input id="sessionToken" defaultValue={item.sessionToken} disabled />
             </div>
-            <div className="grid grid-cols-2 gap-4">
-              <div className="flex flex-col gap-3">
-                <Label htmlFor="type">Type</Label>
-                <Select defaultValue={item.type}>
-                  <SelectTrigger id="type" className="w-full">
-                    <SelectValue placeholder="Select a type" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="Table of Contents">
-                      Table of Contents
-                    </SelectItem>
-                    <SelectItem value="Executive Summary">
-                      Executive Summary
-                    </SelectItem>
-                    <SelectItem value="Technical Approach">
-                      Technical Approach
-                    </SelectItem>
-                    <SelectItem value="Design">Design</SelectItem>
-                    <SelectItem value="Capabilities">Capabilities</SelectItem>
-                    <SelectItem value="Focus Documents">
-                      Focus Documents
-                    </SelectItem>
-                    <SelectItem value="Narrative">Narrative</SelectItem>
-                    <SelectItem value="Cover Page">Cover Page</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className="flex flex-col gap-3">
-                <Label htmlFor="status">Status</Label>
-                <Select defaultValue={item.status}>
-                  <SelectTrigger id="status" className="w-full">
-                    <SelectValue placeholder="Select a status" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="Done">Done</SelectItem>
-                    <SelectItem value="In Progress">In Progress</SelectItem>
-                    <SelectItem value="Not Started">Not Started</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
+            <div className="flex flex-col gap-3">
+              <Label htmlFor="createdAt">Created At</Label>
+              <Input id="createdAt" defaultValue={new Date(item.createdAt).toLocaleString()} disabled />
             </div>
-            <div className="grid grid-cols-2 gap-4">
-              <div className="flex flex-col gap-3">
-                <Label htmlFor="target">Target</Label>
-                <Input id="target" defaultValue={item.target} />
-              </div>
-              <div className="flex flex-col gap-3">
-                <Label htmlFor="limit">Limit</Label>
-                <Input id="limit" defaultValue={item.limit} />
+            <div className="flex flex-col gap-3">
+              <Label>Tech Stack</Label>
+              <div className="flex flex-wrap gap-1">
+                {item.inputTechStack.map((tech, idx) => (
+                  <Badge key={idx} variant="outline">{tech}</Badge>
+                ))}
               </div>
             </div>
             <div className="flex flex-col gap-3">
-              <Label htmlFor="reviewer">Reviewer</Label>
-              <Select defaultValue={item.reviewer}>
-                <SelectTrigger id="reviewer" className="w-full">
-                  <SelectValue placeholder="Select a reviewer" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="Eddie Lake">Eddie Lake</SelectItem>
-                  <SelectItem value="Jamik Tashpulatov">
-                    Jamik Tashpulatov
-                  </SelectItem>
-                  <SelectItem value="Emily Whalen">Emily Whalen</SelectItem>
-                </SelectContent>
-              </Select>
+              <Label>Programming Languages</Label>
+              <div className="flex flex-wrap gap-1">
+                {item.inputLanguage.map((lang, idx) => (
+                  <Badge key={idx} variant="outline">{lang}</Badge>
+                ))}
+              </div>
             </div>
-          </form>
+            <div className="flex flex-col gap-3">
+              <Label htmlFor="generatedProjects">Generated Projects</Label>
+              <Input id="generatedProjects" type="number" defaultValue={item.generatedProjects.length} disabled/>
+            </div>
+          </div>
         </div>
         <DrawerFooter>
           <Button>Submit</Button>

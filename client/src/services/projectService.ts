@@ -1,0 +1,45 @@
+import api from '../lib/api';
+
+export interface ProjectGenerationData {
+  programmingLanguage: string[];
+  techStack: string[];
+  title: string;
+  description ?: string
+  difficulty ?:string
+}
+
+export interface ApiResponse<T = any> {
+  success: boolean;
+  message: string;
+  data?: T;
+}
+
+// Generate Project Ideas
+export const generateProject = async (generateData:ProjectGenerationData ,sessionId:string): Promise<ApiResponse> => {
+  try {
+    const response = await api.post(`/projects/${sessionId}/generate`, generateData);
+    return response.data;
+  } catch (error: any) {
+    throw new Error(error.response?.data?.message || 'Signup failed');
+  }
+};
+
+export const getGeneratedProjectsList = async (sessionId:string): Promise<ApiResponse> => {
+  try {
+    const response = await api.get(`/projects/${sessionId}/list`);
+    return response.data;
+  } catch (error: any) {
+    throw new Error(error.response?.data?.message || 'Signup failed');
+  }
+};
+
+// Utility function to handle API errors
+export const handleApiError = (error: any): string => {
+  if (error.response?.data?.message) {
+    return error.response.data.message;
+  }
+  if (error.message) {
+    return error.message;
+  }
+  return 'An unexpected error occurred';
+};

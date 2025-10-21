@@ -5,9 +5,38 @@ import {
   SidebarProvider,
 } from "@/components/ui/sidebar"
 import { DataTable } from "@/components/data-table";
-import data from "../app/dashboard/data.json"
+import { useEffect,useState } from "react";
+import { sessionList } from "@/services/sessionService";
+import {type generatedProjectProps} from '@/pages/Create'
 
 function Sessions() {
+
+  type sessionsSchema = {
+    id: string,
+    userId: string,
+    sessionToken: string,
+    inputLanguage: string[],
+    inputTechStack: string[],
+    createdAt: string | Date,
+    updatedAt: string | Date,
+    generatedProjects: generatedProjectProps[],
+  }
+  
+  const [data,setData] = useState<sessionsSchema[]>([]);
+  useEffect(()=>{ 
+    async function getList()
+    {
+      try {
+        const response = await sessionList();
+        console.log(response?.data)
+        setData(response?.data)
+      } catch (error) {
+        console.error(error)
+      }
+    }
+    getList();
+  },[])
+
   return (
     <SidebarProvider
       style={

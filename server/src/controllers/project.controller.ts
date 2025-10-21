@@ -399,7 +399,10 @@ const getGeneratedProjectList = asyncHandler(async(req,res)=>{
     const generatedProjectIdeas = await prisma.generatedProject.findMany({
         where:{
             sessionId:exisitingSession.id
-        }
+        },
+        orderBy: {
+            createdAt: "desc",
+        },
     });
 
     console.log(generatedProjectIdeas);

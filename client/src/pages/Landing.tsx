@@ -1,6 +1,6 @@
 import '../App.css';
 import SplitText from '../components/SplitText';
-import { useState,useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import {
   Navbar,
   NavbarButton,
@@ -18,20 +18,43 @@ import Threads from '../components/Threads';
 import CardDemo from '../components/cards-demo-1';
 import Footer2 from '../components/Footer';
 import RotatingText from '../components/RotatingText';
-import {X} from "lucide-react"
-import {useNavigate} from 'react-router-dom'
+import { X } from "lucide-react"
+import { useNavigate } from 'react-router-dom'
+import { useAuth } from '../contexts/AuthContext'
+import { toast } from 'sonner'
 
 function Landing() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [activeCard, setActiveCard] = useState<null|number>(null); // Track active card for modal view
   const navigate = useNavigate();
+  const { isAuthenticated, user, logout, isLoading } = useAuth();
 
   const navItems = [
     { name: "Home", link: "/" },
-    { name: "Dasboard", link: "/dashboard" },
+    { name: "Dashboard", link: "/dashboard" },
     { name: "Analyze", link: "/analyze" },
     { name: "About", link: "#about" },
   ];
+
+  const handleLogout = async () => {
+    try {
+      await logout();
+      toast.success('Logged out successfully');
+      setIsMobileMenuOpen(false);
+    } catch (error: any) {
+      toast.error(error.message || 'Failed to logout');
+    }
+  };
+
+  // Get user initials for avatar fallback
+  const getInitials = (name: string) => {
+    return name
+      .split(' ')
+      .map(word => word[0])
+      .join('')
+      .toUpperCase()
+      .slice(0, 2);
+  };
 
   useEffect(() => {
   const handleEsc = (e: KeyboardEvent) => {
@@ -56,8 +79,47 @@ function Landing() {
               <NavbarLogo />
               <NavItems items={navItems} />
               <div className="flex items-center gap-2">
-                <NavbarButton variant="secondary" href="/login">Login</NavbarButton>
-                <NavbarButton variant="gradient" href="/signup">Sign Up</NavbarButton>
+                {!isLoading && (
+                  isAuthenticated ? (
+                    // Authenticated user - show user info and logout
+                    <>
+                      <div className="hidden md:flex items-center gap-3 mr-2">
+                        <Avatar className="h-8 w-8">
+                          <AvatarFallback className="bg-purple-600 text-white text-sm">
+                            {user ? getInitials(user.name) : 'U'}
+                          </AvatarFallback>
+                        </Avatar>
+                        <span className="text-white text-sm">
+                          {user?.name || 'User'}
+                        </span>
+                      </div>
+                      <NavbarButton 
+                        variant="secondary" 
+                        onClick={(e: React.MouseEvent<HTMLButtonElement>) => {
+                          e.preventDefault();
+                          handleLogout();
+                        }}
+                      >
+                        Logout
+                      </NavbarButton>
+                      <NavbarButton 
+                        variant="gradient" 
+                        onClick={(e: React.MouseEvent<HTMLButtonElement>) => {
+                          e.preventDefault();
+                          navigate('/dashboard');
+                        }}
+                      >
+                        Dashboard
+                      </NavbarButton>
+                    </>
+                  ) : (
+                    // Unauthenticated user - show login/signup
+                    <>
+                      <NavbarButton variant="secondary" href="/login">Login</NavbarButton>
+                      <NavbarButton variant="gradient" href="/signup">Sign Up</NavbarButton>
+                    </>
+                  )
+                )}
               </div>
             </NavBody>
 
@@ -85,14 +147,61 @@ function Landing() {
                   </a>
                 ))}
                 <div className="flex flex-col gap-2 w-full pt-4 border-t border-neutral-200 dark:border-neutral-800">
-                  <NavbarButton variant="secondary"onClick={(e:React.MouseEvent<HTMLButtonElement>)=>{
-                    e.preventDefault();
-                    navigate('/login')
-                  }} className="w-full">Login</NavbarButton>
-                  <NavbarButton variant="gradient" onClick={(e:React.MouseEvent<HTMLButtonElement>)=>{
-                    e.preventDefault();
-                    navigate('/signup')
-                  }} className="w-full">Sign Up</NavbarButton>
+                  {!isLoading && (
+                    isAuthenticated ? (
+                      // Authenticated user - show user info and options
+                      <>
+                        <div className="flex items-center gap-3 p-2 bg-zinc-800 rounded-lg mb-2">
+                          <Avatar className="h-8 w-8">
+                            <AvatarFallback className="bg-purple-600 text-white text-sm">
+                              {user ? getInitials(user.name) : 'U'}
+                            </AvatarFallback>
+                          </Avatar>
+                          <div className="flex flex-col">
+                            <span className="text-white text-sm font-medium">
+                              {user?.name || 'User'}
+                            </span>
+                            <span className="text-gray-400 text-xs">
+                              {user?.email || ''}
+                            </span>
+                          </div>
+                        </div>
+                        <NavbarButton 
+                          variant="gradient" 
+                          onClick={(e: React.MouseEvent<HTMLButtonElement>) => {
+                            e.preventDefault();
+                            navigate('/dashboard');
+                            setIsMobileMenuOpen(false);
+                          }} 
+                          className="w-full"
+                        >
+                          Dashboard
+                        </NavbarButton>
+                        <NavbarButton 
+                          variant="secondary" 
+                          onClick={(e: React.MouseEvent<HTMLButtonElement>) => {
+                            e.preventDefault();
+                            handleLogout();
+                          }} 
+                          className="w-full"
+                        >
+                          Logout
+                        </NavbarButton>
+                      </>
+                    ) : (
+                      // Unauthenticated user - show login/signup
+                      <>
+                        <NavbarButton variant="secondary" onClick={(e: React.MouseEvent<HTMLButtonElement>) => {
+                          e.preventDefault();
+                          navigate('/login')
+                        }} className="w-full">Login</NavbarButton>
+                        <NavbarButton variant="gradient" onClick={(e: React.MouseEvent<HTMLButtonElement>) => {
+                          e.preventDefault();
+                          navigate('/signup')
+                        }} className="w-full">Sign Up</NavbarButton>
+                      </>
+                    )
+                  )}
                 </div>
               </MobileNavMenu>
             </MobileNav>

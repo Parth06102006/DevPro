@@ -9,7 +9,7 @@ export default function LoginPage() {
     <div className="dark grid min-h-svh lg:grid-cols-2">
       <div className="flex flex-col gap-4 p-6 md:p-10">
         <div className="flex justify-center gap-2 md:justify-start">
-          <Link to="/" className="text-white flex gap-3 items-center">
+          <Link to="/" className="text-white flex gap-3 items-center cursor-pointer">
                 <img src="/logo.png" alt="Logo" className="w-10 h-10 object-cover rounded-2xl"/>
               <span className="text-lg font-semibold">DevPro</span></Link>
         </div>

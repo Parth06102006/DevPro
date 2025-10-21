@@ -51,6 +51,19 @@ const getSession = asyncHandler(async(req,res)=>{
     return res.status(200).json(new ApiResponse(200,"Session Retreived Successfully",exisitingSession));
 })
 
+const getSessionList = asyncHandler(async(req,res)=>{
+    const response = await prisma.session.findMany({
+        where:{
+            //@ts-ignore
+            userId:req.user
+        },
+        include:{
+            generatedProjects:true
+        }
+    })
+    console.log(response);
+    return res.status(200).json(new ApiResponse(200,"Session List Fetched Successfully",response))
+})
 
 const deleteSession = asyncHandler(async(req,res)=>{
     const {sessionId} = req.params;
@@ -73,4 +86,4 @@ const deleteSession = asyncHandler(async(req,res)=>{
 })
 
 
-export {createSession,getSession,deleteSession}
+export {createSession,getSession,getSessionList,deleteSession}
