@@ -21,6 +21,7 @@ import {
 import { motion, AnimatePresence } from "framer-motion"
 import SpotlightCard from '@/components/SpotlightCard';
 import { Eye } from "lucide-react"
+import { useNavigate } from "react-router-dom"
 
 export type generatedProjectProps = {
   id:string ,
@@ -33,7 +34,7 @@ export type generatedProjectProps = {
   createdAt:Date
 }
 function Create() {
-
+const navigate = useNavigate();
 const [languagesText, setLanguagesText] = useState("")
 const [techStackText, setTechStackText] = useState("")
 const [languages, setLanguages] = useState<string[]>([])
@@ -97,6 +98,19 @@ const handleSubmit = async () => {
     setIsLoading(false)
   }
 }
+
+
+  //The Function for redirecting to Project URL
+  const redirectProject = async(id:string)=>{
+    const sessionId = params.sessionId
+    if (!sessionId) {
+      toast.error("Error Generating Project")
+      return
+    }
+
+    navigate(`/${sessionId}/project?projectId=${id}`)
+
+  }
 
   const handleLanguagesChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     setLanguagesText(e.target.value)
@@ -222,6 +236,7 @@ const handleSubmit = async () => {
             className="flex items-center gap-2 bg-gradient-to-r from-blue-800 to-slate-600 
                        hover:from-indigo-900 hover:to-blue-500 text-white text-sm 
                        px-4 py-2 rounded-full transition-all duration-300"
+            onClick={()=>{redirectProject(project.id)}}
           >
             <Eye size={16} />
             View Project

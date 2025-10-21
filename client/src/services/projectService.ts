@@ -33,6 +33,24 @@ export const getGeneratedProjectsList = async (sessionId:string): Promise<ApiRes
   }
 };
 
+export const generateProjectInfo = async (sessionId:string,projectId:string): Promise<ApiResponse> => {
+  try {
+    const response = await api.post(`/projects/${sessionId}/create?selectedGenProjId=${projectId}`);
+    return response.data;
+  } catch (error: any) {
+    throw new Error(error.response?.data?.message || 'Signup failed');
+  }
+};
+
+export const getProjectInfo = async (sessionId:string,projectId:string): Promise<ApiResponse> => {
+  try {
+    const response = await api.get(`/projects/${sessionId}/info?selectedGenProjId=${projectId}`);
+    return response.data;
+  } catch (error: any) {
+    throw new Error(error.response?.data?.message || 'Signup failed');
+  }
+};
+
 // Utility function to handle API errors
 export const handleApiError = (error: any): string => {
   if (error.response?.data?.message) {

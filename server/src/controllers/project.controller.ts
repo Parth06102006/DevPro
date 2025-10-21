@@ -234,7 +234,7 @@ const createProject = asyncHandler(async(req,res)=>{
 
     const newProject = await prisma.project.create({
         data:{
-            title:generatedResponse.title   ,
+            title:generatedResponse.title,
             description:generatedResponse.description, 
             difficulty:generatedResponse.difficulty,
             techStack:generatedResponse.techStack,

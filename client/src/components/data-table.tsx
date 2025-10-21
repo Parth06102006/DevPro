@@ -218,8 +218,9 @@ const columns: ColumnDef<z.infer<typeof schema>>[] = [
 
             }
             try {
-              deleteSession(sessionId)
-              sessionList();
+              deleteSession(sessionId).then(()=>{
+                window.location.reload();
+              })
             } catch (error) {
               console.error(error.message)
             }

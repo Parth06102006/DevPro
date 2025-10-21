@@ -94,22 +94,13 @@ function Landing() {
                         </span>
                       </div>
                       <NavbarButton 
-                        variant="secondary" 
+                        variant="gradient" 
                         onClick={(e: React.MouseEvent<HTMLButtonElement>) => {
                           e.preventDefault();
                           handleLogout();
                         }}
                       >
                         Logout
-                      </NavbarButton>
-                      <NavbarButton 
-                        variant="gradient" 
-                        onClick={(e: React.MouseEvent<HTMLButtonElement>) => {
-                          e.preventDefault();
-                          navigate('/dashboard');
-                        }}
-                      >
-                        Dashboard
                       </NavbarButton>
                     </>
                   ) : (
@@ -168,17 +159,6 @@ function Landing() {
                         </div>
                         <NavbarButton 
                           variant="gradient" 
-                          onClick={(e: React.MouseEvent<HTMLButtonElement>) => {
-                            e.preventDefault();
-                            navigate('/dashboard');
-                            setIsMobileMenuOpen(false);
-                          }} 
-                          className="w-full"
-                        >
-                          Dashboard
-                        </NavbarButton>
-                        <NavbarButton 
-                          variant="secondary" 
                           onClick={(e: React.MouseEvent<HTMLButtonElement>) => {
                             e.preventDefault();
                             handleLogout();

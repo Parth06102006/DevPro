@@ -13,6 +13,7 @@ import SavedProjects from './pages/SavedProjects'
 import Analyze from './pages/Analyze'
 import Footer2 from './components/Footer'
 import {Toaster} from 'react-hot-toast'
+import Project from './pages/Project'
 
 const App = () => {
   return (
@@ -29,7 +30,7 @@ const App = () => {
           }
         }}
       />
-      <div className='dark bg-[#040212] w-full'>
+      <div className='dark bg-[#040212] w-full' style={{fontFamily:"Quicksand"}}>
         <Routes>
           {/* Public access route - can be accessed by anyone */}
           <Route path='/' element={
@@ -71,6 +72,11 @@ const App = () => {
               <Create/>
             </ProtectedRoute>
           }/>
+          <Route path='/:sessionId/project' element={
+            <ProtectedRoute>
+              <Project/>
+            </ProtectedRoute>
+          }/>
           <Route path='/saved' element={
             <ProtectedRoute>
               <SavedProjects/>
@@ -82,10 +88,6 @@ const App = () => {
             </ProtectedRoute>
           }/>
         </Routes>
-        <div className='pt-20'>
-          <div className='w-full h-1 bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 opacity-60 blur-sm'></div>
-          <Footer2/>
-        </div>
       </div>
     </AuthProvider>
   )
