@@ -39,16 +39,27 @@ export default function Project() {
   const [data, setData] = useState<ProjectData | null>(null)
   const [loading, setLoading] = useState(true)
   const [sendingMessage, setSendingMessage] = useState(false)
+  const [hasShownError, setHasShownError] = useState(false)
 
   useEffect(() => {
     async function generateInfo(sessionId: string, projectId: string) {
+      const generatePromise = generateProjectInfo(sessionId, projectId)
+      
+      toast.promise(
+        generatePromise,
+        {
+          loading: 'Generating project details...',
+          success: 'Generated project details!',
+          error: 'Failed to generate project details',
+        },
+        { id: 'generate-project' }
+      )
+
       try {
-        const response = await generateProjectInfo(sessionId, projectId)
+        const response = await generatePromise
         setData(response?.data)
-        toast.success("Generated Project Details")
       } catch (error) {
         console.error(error)
-        toast.error("Error generating project details")
       }
     }
 
@@ -56,7 +67,10 @@ export default function Project() {
       const sessionId = params?.sessionId as string
       const projectId = searchParams.get("projectId")
       if (!sessionId || !projectId) {
-        toast.error("Invalid session or project ID")
+        if (!hasShownError) {
+          toast.error("Invalid session or project ID", { id: 'invalid-ids' })
+          setHasShownError(true)
+        }
         setLoading(false)
         return
       }
@@ -70,7 +84,10 @@ export default function Project() {
         }
       } catch (error) {
         console.error(error)
-        toast.error("Error fetching project info")
+        if (!hasShownError) {
+          toast.error("Error fetching project info", { id: 'fetch-project-error' })
+          setHasShownError(true)
+        }
       } finally {
         setLoading(false)
       }
@@ -108,12 +125,13 @@ export default function Project() {
     if (!input.trim() || sendingMessage) return
 
     const sessionId = params?.sessionId as string
-      const projectId = searchParams.get("projectId")
-      if (!sessionId || !projectId) {
-        return
-      }
+    const projectId = searchParams.get("projectId")
+    if (!sessionId || !projectId) {
+      return
+    }
 
     const userMessage = input
+    const messageId = Date.now()
     setInput("")
     setSendingMessage(true)
 
@@ -123,14 +141,14 @@ export default function Project() {
     ])
 
     try {
-      const response = await createAnswer(sessionId, userMessage,projectId)
+      const response = await createAnswer(sessionId, userMessage, projectId)
       setMessages((prev) => [
         ...prev,
         { role: "assistant", text: response?.data?.answer || response?.data?.message || "I received your question!" },
       ])
     } catch (error) {
       console.error(error)
-      toast.error("Failed to send message")
+      toast.error("Failed to send message", { id: `send-error-${messageId}` })
       setMessages((prev) => [
         ...prev,
         { role: "assistant", text: "Sorry, I encountered an error processing your request." },
@@ -142,21 +160,31 @@ export default function Project() {
 
   const handleSuggestion = async () => {
     const sessionId = params?.sessionId as string
-      const projectId = searchParams.get("projectId")
-      if (!sessionId || !projectId) {
-        return
-      }
+    const projectId = searchParams.get("projectId")
+    if (!sessionId || !projectId) {
+      return
+    }
+
+    const suggestionPromise = createSuggestion(sessionId, projectId)
+    
+    toast.promise(
+      suggestionPromise,
+      {
+        loading: 'Generating suggestion...',
+        success: 'Generated suggestion!',
+        error: 'Failed to generate suggestion',
+      },
+      { id: 'create-suggestion' }
+    )
 
     try {
-      const response = await createSuggestion(sessionId,projectId)
+      const response = await suggestionPromise
       setMessages((prev) => [
         ...prev,
         { role: "assistant", text: response?.data?.suggestion || "💡 Here's a new project suggestion based on your interests!" },
       ])
-      toast.success("Generated suggestion!")
     } catch (error) {
       console.error(error)
-      toast.error("Failed to generate suggestion")
     }
   }
 

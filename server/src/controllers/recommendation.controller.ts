@@ -31,9 +31,20 @@ const generateSuggestions = asyncHandler(async(req,res)=>{
         throw new ApiError(400,"No Existing Session Found");
     }
 
-    const existingProject = await prisma.project.findUnique({
+    const generatedProject = await prisma.generatedProject.findUnique({
         where:{
             id:(projectId as string),
+        }
+    })
+
+    if(!generatedProject)
+    {
+        throw new ApiError(400,"No Exisiting Generated Project Found");
+    } 
+
+    const existingProject = await prisma.project.findUnique({
+        where:{
+            generatedFromId:generatedProject.id
         }
     })
 
@@ -58,16 +69,14 @@ const generateSuggestions = asyncHandler(async(req,res)=>{
 
     Return the output strictly as a **valid JSON array** of recommendation objects in the following schema:
 
-    [
     {
         "details": string,      // Clear, concise suggestion for improvement
     }
-    ]
 
     Rules:
-    - Return only a valid JSON array, no markdown or explanations.
+    - Return only a valid JSON object, no markdown or explanations.
     - Each “details” field must be unique and specific.
-    - Include 5–10 recommendations.
+    -Include a 1 good recommendation
     - Do NOT include null or empty strings.
     `;
 
@@ -79,10 +88,10 @@ const generateSuggestions = asyncHandler(async(req,res)=>{
     Tech Stack: ${existingProject.techStack.join(", ")}
 
     Task:
-    Generate 5–10 recommendations that can help improve or extend this project.
+    Generate single recommendations that can help improve or extend this project.
     Each recommendation must focus on practical development advice, optimization, feature expansion, or user experience improvements.
 
-    Return only a valid JSON array following the schema in the system prompt.
+    Return only a valid JSON object following the schema in the system prompt.
     `
 
     const messages = [
@@ -104,6 +113,8 @@ const generateSuggestions = asyncHandler(async(req,res)=>{
     {
         throw new ApiError(500,"Error Generating Suggestions");
     }
+
+    console.log(generatedResponse)
 
     const aiSuggestions = await prisma.recommendation.create({
         data:{
@@ -149,9 +160,20 @@ const generateAnswer = asyncHandler(async(req,res)=>{
         throw new ApiError(400,"No Existing Session Found");
     }
 
-    const existingProject = await prisma.project.findUnique({
+    const generatedProject = await prisma.generatedProject.findUnique({
         where:{
             id:(projectId as string),
+        }
+    })
+
+    if(!generatedProject)
+    {
+        throw new ApiError(400,"No Exisiting Generated Project Found");
+    } 
+
+    const existingProject = await prisma.project.findUnique({
+        where:{
+            generatedFromId:generatedProject.id
         }
     })
 
@@ -257,9 +279,20 @@ const getMessages = asyncHandler(async(req,res)=>{
         throw new ApiError(400,"No Existing Session Found");
     }
 
-    const existingProject = await prisma.project.findUnique({
+    const generatedProject = await prisma.generatedProject.findUnique({
         where:{
             id:(projectId as string),
+        }
+    })
+
+    if(!generatedProject)
+    {
+        throw new ApiError(400,"No Exisiting Generated Project Found");
+    } 
+
+    const existingProject = await prisma.project.findUnique({
+        where:{
+            generatedFromId:generatedProject.id
         }
     })
 
