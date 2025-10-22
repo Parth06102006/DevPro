@@ -63,7 +63,7 @@ const handleSubmit = async () => {
   setLanguages(languagesArray)
   setTechStack(techStackArray)
 
-  if (languagesArray.length === 0 || techStackArray.length === 0) {
+  if (languages.length === 0 || techStack.length === 0) {
     toast.error("Please fill in all required fields")
     return
   }
@@ -75,8 +75,8 @@ const handleSubmit = async () => {
   }
 
   const projectData = {
-    programmingLanguage: languagesArray,
-    techStack: techStackArray,
+    programmingLanguage: languages,
+    techStack: techStack,
     title: title || "Untitled",
     difficulty: difficulty || "BEGINNER",
     description: description || "No Description",
