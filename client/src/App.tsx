@@ -1,5 +1,4 @@
 import './App.css'
-import React from 'react'
 import { Route, Routes } from 'react-router-dom'
 import { AuthProvider } from './contexts/AuthContext'
 import { ProtectedRoute, PublicRoute, PublicAccessRoute } from './components/routes/RouteGuards'
@@ -11,7 +10,6 @@ import Sessions from './pages/Sessions'
 import Create from './pages/Create'
 import SavedProjects from './pages/SavedProjects'
 import Analyze from './pages/Analyze'
-import Footer2 from './components/Footer'
 import {Toaster} from 'react-hot-toast'
 import Project from './pages/Project'
 

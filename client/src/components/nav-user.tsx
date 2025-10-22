@@ -54,7 +54,8 @@ export function NavUser({
       await logout()
       toast.success('Logged out successfully')
       navigate('/', { replace: true })
-    } catch (error: any) {
+    } catch (error) {
+      //@ts-expect-error if logout fails
       toast.error(error.message || 'Failed to logout')
     }
   }
