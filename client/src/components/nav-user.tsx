@@ -1,6 +1,5 @@
 "use client"
 
-import React from "react"
 import {
   IconDotsVertical,
   IconLogout,
@@ -32,7 +31,7 @@ import { useNavigate } from "react-router-dom"
 export function NavUser({
   user,
 }: {
-  user?: {
+  user: {
     name: string
     email: string
     avatar?: string
