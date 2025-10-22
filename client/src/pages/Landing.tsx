@@ -256,7 +256,7 @@ function Landing() {
         <div className="relative z-10 w-full flex justify-center items-center mr-20">
           <div className="max-w-5xl w-full flex justify-center gap-6 pt-80 sm:pt-100  md:pt-100">
             <CardSwap cardDistance={70} verticalDistance={90} delay={6000} pauseOnHover={true}>
-              {[1,2,3].map((c, idx) => (
+              {[1,2,3].map((_c, idx) => (
                 <Card key={idx} onClick={() => setActiveCard(idx)}>
                   <CardDemo />
                 </Card>
