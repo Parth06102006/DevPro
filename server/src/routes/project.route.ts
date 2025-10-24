@@ -1,9 +1,10 @@
 import { Router } from "express";
-import { generateProjects, createProject ,saveProject , getProjectInfo, getGeneratedProjectList } from "../controllers/project.controller.js";
+import { generateProjects, createProject ,saveProject , getProjectInfo, getGeneratedProjectList,getUserProjectProfileInfo } from "../controllers/project.controller.js";
 import { auth_handler } from "../middlewares/auth.middleware.js";
 
 const router = Router();
 
+router.get('/dashboard',auth_handler,getUserProjectProfileInfo)
 // Generate project ideas for a session
 router.post("/:sessionId/generate", auth_handler, generateProjects);
 

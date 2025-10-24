@@ -410,4 +410,70 @@ const getGeneratedProjectList = asyncHandler(async(req,res)=>{
     return res.status(200).json(new ApiResponse(200,"Fetched Generated Project List",generatedProjectIdeas))
 })
 
-export {generateProjects,createProject,saveProject,getProjectInfo,getGeneratedProjectList}
+const getUserProjectProfileInfo = asyncHandler(async(req,res)=>{
+    try {
+        //@ts-ignore
+        const user = req.user; 
+        const totalProjects = await prisma.project.count({
+            where:{
+                createdById:user
+            }
+        })
+
+        const beginnerProject = await prisma.project.count({
+            where:{
+                createdById:user,
+                difficulty:'BEGINNER'
+            }
+        })
+
+        const intermediateProject = await prisma.project.count({
+            where:{
+                createdById:user,
+                difficulty:'INTERMEDIATE'
+            }
+        })
+
+        const advancedProject = await prisma.project.count({
+            where:{
+                createdById:user,
+                difficulty:'ADVANCED'
+            }
+        })
+
+        const recentSessions = await prisma.session.findMany({
+            take:5,
+            orderBy: {
+                createdAt: 'desc',
+            },
+            where:{
+                userId:user,
+            }
+        })
+
+        const topProjects = await prisma.project.findMany({
+            take: 5,
+            include: {
+            _count: {
+                select: {
+                savedByUsers: true,
+                recommendationByAI: true,
+                },
+            },
+            },
+            orderBy: {
+            savedByUsers: { _count: "desc" },
+            },
+        });
+
+        const data = {totalProjects,beginnerProject,intermediateProject,advancedProject,recentSessions,topProjects}
+
+        return res.status(200).json(new ApiResponse(200,"Details Fetched Successfully",data))
+    } catch (error) {
+        if(error instanceof Error) console.error(error.message)
+        throw new ApiError(500,"Details Cannnot be Fetched")
+    }
+
+})
+
+export {generateProjects,createProject,saveProject,getProjectInfo,getGeneratedProjectList,getUserProjectProfileInfo}
