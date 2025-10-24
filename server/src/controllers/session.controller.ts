@@ -59,6 +59,9 @@ const getSessionList = asyncHandler(async(req,res)=>{
         },
         include:{
             generatedProjects:true
+        },
+        orderBy:{
+            createdAt:"desc"
         }
     })
     console.log(response);
