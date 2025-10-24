@@ -33,7 +33,6 @@ export default function Dashboard() {
         // - sessionActivity: array of session activity grouped by date for last 30 days
 
         const response = await getDashboardInfo()
-          console.log(response.data)
           setData(response.data)
 
         } catch (error) {

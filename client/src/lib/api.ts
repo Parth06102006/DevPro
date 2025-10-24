@@ -33,7 +33,6 @@ api.interceptors.response.use(
       // Redirect to login or clear auth state
       window.location.href = '/login';
     }
-    toast.error(error.message);
     return Promise.reject(error);
   }
 );

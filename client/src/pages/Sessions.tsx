@@ -29,7 +29,6 @@ function Sessions() {
     {
       try {
         const response = await sessionList();
-        console.log(response?.data)
         setData(response?.data)
       } catch (error) {
         console.error(error)
