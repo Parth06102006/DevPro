@@ -9,18 +9,19 @@ import { useEffect,useState } from "react";
 import { sessionList } from "@/services/sessionService";
 import {type generatedProjectProps} from '@/pages/Create'
 
+export type sessionsSchema = {
+  id: string,
+  userId: string,
+  sessionToken: string,
+  inputLanguage: string[],
+  inputTechStack: string[],
+  createdAt: string | Date,
+  updatedAt: string | Date,
+  generatedProjects: generatedProjectProps[],
+}
+
 function Sessions() {
 
-  type sessionsSchema = {
-    id: string,
-    userId: string,
-    sessionToken: string,
-    inputLanguage: string[],
-    inputTechStack: string[],
-    createdAt: string | Date,
-    updatedAt: string | Date,
-    generatedProjects: generatedProjectProps[],
-  }
   
   const [data,setData] = useState<sessionsSchema[]>([]);
   useEffect(()=>{ 

@@ -11,7 +11,7 @@ import { createSuggestion, createAnswer, getChats } from "@/services/aiService"
 import toast from "react-hot-toast"
 import {TimelineHorizontal} from "@/components/TimelineHorizontal"
 
-interface ProjectData {
+export interface ProjectData {
   title?: string
   description?: string
   difficulty?: string

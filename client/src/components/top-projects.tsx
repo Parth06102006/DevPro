@@ -5,14 +5,18 @@ import { Skeleton } from "@/components/ui/skeleton"
 import { Badge } from "@/components/ui/badge"
 import { useEffect, useState } from "react"
 
-interface Project {
-  id: string
+export interface ProjectProps {
+  id:string,
   title: string
   description: string
   difficulty: "BEGINNER" | "INTERMEDIATE" | "ADVANCED"
   techStack: string[]
-  createdAt: string
-  savedCount?: number
+  programmingLanguage: string[]
+  implementationSteps: Array<{
+    stepNumber: number
+    title: string
+    details: string
+  }>
 }
 
 const difficultyColors = {
@@ -21,31 +25,19 @@ const difficultyColors = {
   ADVANCED: "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200",
 }
 
-export function TopProjects() {
-  const [projects, setProjects] = useState<Project[]>([])
+export function TopProjects({ projectsList = [] }: { projectsList: ProjectProps[] }) {
+  const [projects, setProjects] = useState<ProjectProps[]>([])
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    const fetchTopProjects = async () => {
-      try {
-        // This endpoint should return:
-        // - array of top 5 projects by saves/usage for the current user
-        // - include: id, title, description, difficulty, techStack, createdAt, savedCount
+    setLoading(true)
 
-        const response = await fetch("/api/projects/top")
-        if (response.ok) {
-          const data = await response.json()
-          setProjects(data.data || [])
-        }
-      } catch (error) {
-        console.error("Failed to fetch top projects:", error)
-      } finally {
-        setLoading(false)
-      }
-    }
+    setProjects(projectsList)
 
-    fetchTopProjects()
-  }, [])
+    setLoading(false)
+  }, [
+    projectsList
+  ])
 
   if (loading) {
     return (
@@ -77,27 +69,26 @@ export function TopProjects() {
           </div>
         ) : (
           <div className="space-y-4">
-            {projects.map((project) => (
-              <div key={project.id} className="p-3 border rounded-lg hover:bg-muted/50 transition-colors">
+            {projects && projects.map((project) => (
+              <div key={project?.id} className="p-3 border rounded-lg hover:bg-muted/50 transition-colors">
                 <div className="flex items-start justify-between mb-2">
                   <h4 className="font-medium text-sm line-clamp-1">{project.title}</h4>
-                  <Badge className={difficultyColors[project.difficulty]}>{project.difficulty}</Badge>
+                  <Badge className={difficultyColors[project?.difficulty]}>{project.difficulty}</Badge>
                 </div>
                 <p className="text-xs text-muted-foreground line-clamp-2 mb-2">{project.description}</p>
                 <div className="flex items-center justify-between">
                   <div className="flex flex-wrap gap-1">
-                    {project.techStack.slice(0, 2).map((tech) => (
+                    {project?.techStack.slice(0, 2).map((tech) => (
                       <Badge key={tech} variant="outline" className="text-xs">
                         {tech}
                       </Badge>
                     ))}
-                    {project.techStack.length > 2 && (
+                    {project?.techStack.length > 2 && (
                       <Badge variant="outline" className="text-xs">
-                        +{project.techStack.length - 2}
+                        +{project?.techStack.length - 2}
                       </Badge>
                     )}
                   </div>
-                  <span className="text-xs text-muted-foreground">{project.savedCount || 0} saves</span>
                 </div>
               </div>
             ))}

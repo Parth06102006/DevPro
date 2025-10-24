@@ -51,6 +51,15 @@ export const getProjectInfo = async (sessionId:string,projectId:string): Promise
   }
 };
 
+export const getDashboardInfo = async (): Promise<ApiResponse> => {
+  try {
+    const response = await api.get(`/projects/dashboard`);
+    return response.data;
+  } catch (error: any) {
+    throw new Error(error.response?.data?.message || 'Signup failed');
+  }
+};
+
 // Utility function to handle API errors
 export const handleApiError = (error: any): string => {
   if (error.response?.data?.message) {

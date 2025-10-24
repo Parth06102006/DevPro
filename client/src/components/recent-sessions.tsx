@@ -2,44 +2,24 @@
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Skeleton } from "@/components/ui/skeleton"
-import { Badge } from "@/components/ui/badge"
+// import { Badge } from "@/components/ui/badge"
 import { useEffect, useState } from "react"
+import { type sessionsSchema } from "@/pages/Sessions"
 import { formatDistanceToNow } from "date-fns"
 
-interface Session {
-  id: string
-  sessionToken: string
-  createdAt: string
-  projectCount: number
-  inputLanguage?: string
-  inputTechStack?: string
-}
-
-export function RecentSessions() {
-  const [sessions, setSessions] = useState<Session[]>([])
+export function RecentSessions(props:{recentSessions:sessionsSchema[] | []}) {
+  const [sessions, setSessions] = useState<sessionsSchema[]>([])
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    const fetchSessions = async () => {
-      try {
-        // This endpoint should return:
-        // - array of recent sessions (last 5-10) for the current user
-        // - include: id, sessionToken, createdAt, projectCount, inputLanguage, inputTechStack
+    setLoading(true)
 
-        const response = await fetch("/api/sessions/recent")
-        if (response.ok) {
-          const data = await response.json()
-          setSessions(data.data || [])
-        }
-      } catch (error) {
-        console.error("Failed to fetch sessions:", error)
-      } finally {
-        setLoading(false)
-      }
-    }
+    setSessions(props.recentSessions)
 
-    fetchSessions()
-  }, [])
+    setLoading(false)
+  }, [
+    props.recentSessions
+  ])
 
   if (loading) {
     return (
@@ -77,14 +57,14 @@ export function RecentSessions() {
                 className="flex items-center justify-between p-3 border rounded-lg hover:bg-muted/50 transition-colors"
               >
                 <div className="flex-1">
-                  <p className="font-medium text-sm">{session.inputLanguage || "Session"}</p>
+                  <p className="font-medium text-sm">{(session.inputLanguage.length === 0) ? "Session" : session.inputLanguage}</p>
                   <p className="text-xs text-muted-foreground">
                     {formatDistanceToNow(new Date(session.createdAt), { addSuffix: true })}
                   </p>
                 </div>
-                <div className="flex items-center gap-2">
-                  <Badge variant="secondary">{session.projectCount} projects</Badge>
-                </div>
+                {/* <div className="flex items-center gap-2">
+                  <Badge variant="secondary">{session?.projectCount} projects</Badge>
+                </div> */}
               </div>
             ))}
           </div>

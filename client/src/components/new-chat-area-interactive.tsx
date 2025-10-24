@@ -3,6 +3,7 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Skeleton } from "@/components/ui/skeleton"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { getDashboardInfo } from "@/services/projectService"
 import { useEffect, useState } from "react"
 import {
   BarChart,
@@ -29,7 +30,7 @@ interface ChartData {
     name: string
     value: number
   }>
-  sessionActivity: Array<{
+  recentSessions: Array<{
     date: string
     sessions: number
   }>
@@ -46,29 +47,6 @@ const COLORS = [
 export function ChartAreaInteractive() {
   const [chartData, setChartData] = useState<ChartData | null>(null)
   const [loading, setLoading] = useState(true)
-
-  useEffect(() => {
-    const fetchChartData = async () => {
-      try {
-        // This endpoint should return:
-        // - recentProjects: array of projects created in last 30 days grouped by date
-        // - topProjects: array of top 5 projects by usage/saves
-        // - sessionActivity: array of session activity grouped by date for last 30 days
-
-        const response = await fetch("/api/dashboard/charts")
-        if (response.ok) {
-          const data = await response.json()
-          setChartData(data.data)
-        }
-      } catch (error) {
-        console.error("Failed to fetch chart data:", error)
-      } finally {
-        setLoading(false)
-      }
-    }
-
-    fetchChartData()
-  }, [])
 
   if (loading) {
     return (
