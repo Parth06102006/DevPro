@@ -4,7 +4,7 @@ function Footer2() {
   const socialIcons = [
     {
       name: "X",
-      href: "#",
+      href: `https://x.com/ParthGarg6509/`,
       svg: (
         <svg
           className="size-6 transition-transform duration-200 hover:scale-110"
@@ -22,7 +22,7 @@ function Footer2() {
     },
     {
       name: "LinkedIn",
-      href: "#",
+      href: `https://www.linkedin.com/in/parth-garg-1761a531b`,
       svg: (
         <svg
           className="size-6 transition-transform duration-200 hover:scale-110"
@@ -39,8 +39,8 @@ function Footer2() {
       ),
     },
     {
-      name: "Instagram",
-      href: "#",
+      name: "Github",
+      href: `https://github.com/Parth06102006`,
       svg: (
         <svg
         className="size-6 transition-transform duration-200 hover:scale-110"
