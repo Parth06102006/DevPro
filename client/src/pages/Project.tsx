@@ -6,7 +6,7 @@ import { Skeleton } from "@/components/ui/skeleton"
 import SpotlightCard from "@/components/SpotlightCard"
 import { Code2, Send, Lightbulb } from "lucide-react"
 import { useParams, useSearchParams } from "react-router-dom"
-import { generateProjectInfo, getProjectInfo } from "@/services/projectService"
+import { generateProjectInfo, getProjectInfo, saveProject } from "@/services/projectService"
 import { createSuggestion, createAnswer, getChats } from "@/services/aiService"
 import toast from "react-hot-toast"
 import {TimelineHorizontal} from "@/components/TimelineHorizontal"
@@ -121,6 +121,22 @@ export default function Project() {
     loadChats()
   }, [params, searchParams])
 
+    async function saveProjectButton(){
+      const sessionId = params?.sessionId as string
+      const projectId = searchParams.get("projectId")
+      if (!sessionId || !projectId) {
+          toast.error("Invalid session or project ID", { id: 'invalid-ids' })
+          return
+        }
+       
+      try {
+        await saveProject(sessionId, projectId)
+      } catch (error) {
+        console.error(error)
+        toast.error("Error Saving Project", { id: 'save-project-error' })
+      }
+  }
+
   const handleSend = async () => {
     if (!input.trim() || sendingMessage) return
 
@@ -195,7 +211,7 @@ export default function Project() {
         {loading ? (<Skeleton className="w-full h-5"/>) : (<div>
                 <p className="text-4xl font-semibold mt-1">{data?.title}</p>
               </div>)}
-        <Button>Save</Button>
+        <Button onClick={saveProjectButton}>Save</Button>
       </div>
       {loading ? (
         <Skeleton className="h-40 w-full" />
@@ -301,3 +317,4 @@ export default function Project() {
     </div>
   )
 }
+

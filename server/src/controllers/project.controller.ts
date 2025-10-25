@@ -299,16 +299,28 @@ const saveProject = asyncHandler(async(req,res)=>{
         throw new ApiError(400,"No Existing Session Found");
     }
 
-    const existingProject = await prisma.project.findUnique({
-        where:{
-            id:(projectId as string),
-        }
-    })
+        const generatedProject = await prisma.generatedProject.findUnique({
+            where:{
+                id:(projectId as string),
+            }
+        })
 
-    if(!existingProject)
-    {
-        throw new ApiError(400,"No Exisiting Project Found");
-    }
+        if(!generatedProject)
+        {
+            throw new ApiError(400,"No Exisiting Generated Project Found");
+        } 
+
+        const existingProject = await prisma.project.findUnique({
+            where:{
+                generatedFromId:generatedProject.id
+            }
+        })
+
+        if(!existingProject)
+        {
+            throw new ApiError(400,"No Exisiting Project Found");
+        } 
+
 
     const project_saved = await prisma.savedProject.create({
         data:{
