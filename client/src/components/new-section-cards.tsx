@@ -36,7 +36,7 @@ export function SectionCards(props:DashboardStats) {
 
   if (loading) {
     return (
-      <div className="grid gap-4 px-4 lg:px-6 md:grid-cols-2 lg:grid-cols-4">
+      <div className="grid gap-4 px-4 lg:px-6 md:grid-cols-2 lg:grid-cols-4 ">
         {[...Array(4)].map((_, i) => (
           <Card key={i}>
             <CardHeader className="pb-2">
@@ -52,9 +52,9 @@ export function SectionCards(props:DashboardStats) {
   }
 
   return (
-    <div className="grid gap-4 px-4 lg:px-6 md:grid-cols-2 lg:grid-cols-4">
+    <div className="grid gap-4 px-4 lg:px-6 md:grid-cols-2 lg:grid-cols-4 ">
       {/* Total Projects Card */}
-      <Card>
+      <Card className="border border-slate-700 bg-gradient-to-br from-slate-950 to-slate-900 shadow-2xl">
         <CardHeader className="pb-2">
           <CardTitle className="text-sm font-medium text-muted-foreground">Total Projects</CardTitle>
         </CardHeader>
@@ -66,7 +66,7 @@ export function SectionCards(props:DashboardStats) {
 
 
       {/* Beginner Projects */}
-      <Card>
+      <Card className="border border-slate-700 bg-gradient-to-br from-slate-950 to-slate-900 shadow-2xl">
         <CardHeader className="pb-2">
           <CardTitle className="text-sm font-medium text-muted-foreground">Beginner Projects</CardTitle>
         </CardHeader>
@@ -77,7 +77,7 @@ export function SectionCards(props:DashboardStats) {
       </Card>
 
       {/* Intermediate Projects */}
-      <Card>
+      <Card className="border border-slate-700 bg-gradient-to-br from-slate-950 to-slate-900 shadow-2xl">
         <CardHeader className="pb-2">
           <CardTitle className="text-sm font-medium text-muted-foreground">Intermediate Projects</CardTitle>
         </CardHeader>
@@ -88,7 +88,7 @@ export function SectionCards(props:DashboardStats) {
       </Card>
 
       {/* Advanced Projects */}
-      <Card>
+      <Card className="border border-slate-700 bg-gradient-to-br from-slate-950 to-slate-900 shadow-2xl">
         <CardHeader className="pb-2">
           <CardTitle className="text-sm font-medium text-muted-foreground">Advanced Projects</CardTitle>
         </CardHeader>

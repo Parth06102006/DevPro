@@ -12,11 +12,11 @@ export interface ProjectProps {
   difficulty: "BEGINNER" | "INTERMEDIATE" | "ADVANCED"
   techStack: string[]
   programmingLanguage: string[]
-  implementationSteps: Array<{
-    stepNumber: number
-    title: string
-    details: string
-  }>
+  _count:{
+    implementationSteps:number,
+    savedByUsers:number,
+    recommendationByAI:number
+  }
 }
 
 const difficultyColors = {
@@ -55,7 +55,7 @@ export function TopProjects({ projectsList = [] }: { projectsList: ProjectProps[
   }
 
   return (
-    <Card>
+    <Card className="border border-slate-700 bg-gradient-to-br from-slate-950 to-slate-900 shadow-2xl">
       <CardHeader>
         <CardTitle>Top Projects</CardTitle>
         <CardDescription>Your most popular projects</CardDescription>

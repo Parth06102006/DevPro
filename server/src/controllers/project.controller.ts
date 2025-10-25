@@ -456,6 +456,7 @@ const getUserProjectProfileInfo = asyncHandler(async(req,res)=>{
             include: {
             _count: {
                 select: {
+                implementationSteps:true,
                 savedByUsers: true,
                 recommendationByAI: true,
                 },
@@ -466,7 +467,53 @@ const getUserProjectProfileInfo = asyncHandler(async(req,res)=>{
             },
         });
 
-        const data = {totalProjects,beginnerProject,intermediateProject,advancedProject,recentSessions,topProjects}
+        const sessionCounts = await prisma.session.groupBy({
+            by: ['createdAt'],
+            _count: { _all: true },
+            orderBy: { createdAt: 'asc' }
+        })
+
+        const projectCount = await prisma.project.groupBy({
+            by: ['createdAt'],
+            _count: { _all: true },
+            orderBy: { createdAt: 'asc' }
+        })
+
+        const projectGroupedByDate = projectCount.reduce((acc, item) => {
+            const date = new Date(item.createdAt).toISOString().split('T')[0] // remove time
+            const count = item._count._all
+
+            //@ts-ignore
+            if (!acc[date]) acc[date] = 0
+            //@ts-ignore
+            acc[date] += count
+
+            return acc
+        }, {})
+
+        const projectCountList = Object.entries(projectGroupedByDate).map(([date, count]) => ({
+        date,
+        count
+        }))
+
+        const sessionsGroupedByDate = sessionCounts.reduce((acc, item) => {
+            const date = new Date(item.createdAt).toISOString().split('T')[0] // remove time
+            const count = item._count._all
+
+            //@ts-ignore
+            if (!acc[date]) acc[date] = 0
+            //@ts-ignore
+            acc[date] += count
+
+            return acc
+        }, {})
+
+        const sessionCountList = Object.entries(sessionsGroupedByDate).map(([date, count]) => ({
+            date,
+            count
+        }))
+
+        const data = {totalProjects,beginnerProject,intermediateProject,advancedProject,recentSessions,topProjects,sessionCountList,projectCountList}
 
         return res.status(200).json(new ApiResponse(200,"Details Fetched Successfully",data))
     } catch (error) {

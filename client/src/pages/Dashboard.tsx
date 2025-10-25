@@ -11,6 +11,11 @@ import { getDashboardInfo } from "@/services/projectService"
 import { type sessionsSchema } from "./Sessions"
 import { type ProjectProps } from "@/components/top-projects"
 
+interface ChartDataProps {
+  date:string,
+  count:number
+}
+
 export default function Dashboard() {
 
     type DashboardProps = {
@@ -20,6 +25,8 @@ export default function Dashboard() {
       advancedProject:number,
       recentSessions : sessionsSchema[],
       topProjects:ProjectProps[]
+      sessionCountList:ChartDataProps[],
+      projectCountList:ChartDataProps[]
     }
 
 
@@ -66,7 +73,11 @@ export default function Dashboard() {
 
 
               <div className="px-4 lg:px-6">
-                <ChartAreaInteractive />
+                <ChartAreaInteractive
+                  recentProjects = {data?.projectCountList ?? []}
+                  topProjects = {data?.topProjects ?? []}
+                  recentSessions={data?.sessionCountList ?? []}
+                />
               </div>
 
               <div className="grid gap-4 px-4 lg:px-6 md:grid-cols-2">

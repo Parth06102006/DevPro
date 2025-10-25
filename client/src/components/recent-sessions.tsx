@@ -37,7 +37,7 @@ export function RecentSessions(props:{recentSessions:sessionsSchema[] | []}) {
   }
 
   return (
-    <Card>
+    <Card className="border border-slate-700 bg-gradient-to-br from-slate-950 to-slate-900 shadow-2xl">
       <CardHeader>
         <CardTitle>Recent Sessions</CardTitle>
         <CardDescription>Your latest project generation sessions</CardDescription>
