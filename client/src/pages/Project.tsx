@@ -191,6 +191,12 @@ export default function Project() {
   return (
     <div className="flex flex-col gap-8 p-6 w-full min-h-screen bg-gradient-to-br from-[#040212] to-[#1b1b1b] text-white" style={{fontFamily:"Quicksand"}}>
       {/* Project Info Card */}
+      <div className="flex justify-between">
+        {loading ? (<Skeleton className="w-full h-5"/>) : (<div>
+                <p className="text-4xl font-semibold mt-1">{data?.title}</p>
+              </div>)}
+        <Button>Save</Button>
+      </div>
       {loading ? (
         <Skeleton className="h-40 w-full" />
       ) : (
@@ -200,10 +206,6 @@ export default function Project() {
               <Code2 className="text-blue-400" /> Project Info
             </h2>
             <div className="space-y-5">
-              <div>
-                <p className="text-xs text-white/60 uppercase">Project Title</p>
-                <p className="text-xl font-semibold mt-1">{data?.title}</p>
-              </div>
               <div>
                 <p className="text-xs text-white/60 uppercase">Description</p>
                 <p className="text-white/80 leading-relaxed">{data?.description}</p>
