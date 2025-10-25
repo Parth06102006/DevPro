@@ -5,30 +5,42 @@ import { SiteHeader } from "@/components/site-header"
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
+import toast from "react-hot-toast"
+import { savedProjectList } from "@/services/projectService"
+import {type ProjectData } from "./Project"
+import SpotlightCard from "@/components/SpotlightCard"
+// import { useNavigate } from "react-router-dom"
+//Add Navigation to the Project
 
-interface SavedProject {
+interface SavedProject
+ {
   id: string
-  title: string
-  languages: string[]
-  techStack: string[]
-  createdAt: string
+  userId: string
+  projectId: string[]
+  savedAt: string | Date
+  project: ProjectData
 }
+
 
 function SavedProjects() {
   const [projects, setProjects] = useState<SavedProject[]>([])
   const [isLoading, setIsLoading] = useState(true)
-
+  // const navigate = useNavigate();
   useEffect(() => {
     // Simulate fetching saved projects from localStorage or API
-    const timer = setTimeout(() => {
-      const savedProjects = localStorage.getItem("projects")
-      if (savedProjects) {
-        setProjects(JSON.parse(savedProjects))
-      }
-      setIsLoading(false)
-    }, 500)
-
-    return () => clearTimeout(timer)
+    async function getSavedProjects()
+    {
+      try {
+          setIsLoading(true);
+          const response = await savedProjectList()
+          setProjects(response.data)
+          setIsLoading(false)
+        } catch (error : any) {
+            toast.error(error.message || "Error Fetching Saved Projects")
+            setIsLoading(false)
+        }
+    }
+    getSavedProjects();
   }, [])
 
   return (
@@ -43,7 +55,7 @@ function SavedProjects() {
       <AppSidebar variant="inset" />
       <SidebarInset>
         <SiteHeader />
-        <div className="flex flex-col w-full h-full">
+        <div className="flex flex-col w-full h-full text-white">
           {/* Empty State */}
           {!isLoading && projects.length === 0 && (
             <div className="flex-1 flex items-center justify-center px-4">
@@ -59,39 +71,41 @@ function SavedProjects() {
 
           {/* Projects Grid */}
           {!isLoading && projects.length > 0 && (
-            <div className="flex-1 overflow-auto">
+              <div className="flex-1 overflow-auto">
               <div className="p-4 md:p-6 lg:p-8">
                 <h1 className="text-2xl md:text-3xl font-bold mb-6">Saved Projects</h1>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
                   {projects.map((project) => (
-                    <Card key={project.id} className="hover:shadow-lg transition-shadow">
+                    <SpotlightCard>
+                      <Card key={project.id} className="hover:shadow-lg transition-shadow">
                       <CardHeader>
-                        <CardTitle className="text-lg md:text-xl">{project.title}</CardTitle>
-                        <CardDescription>{new Date(project.createdAt).toLocaleDateString()}</CardDescription>
-                      </CardHeader>
-                      <CardContent className="space-y-4">
-                        <div>
-                          <p className="text-sm font-semibold mb-2">Languages</p>
-                          <div className="flex flex-wrap gap-2">
-                            {project.languages.map((lang, idx) => (
-                              <Badge key={idx} variant="secondary">
-                                {lang}
-                              </Badge>
-                            ))}
+                        <CardTitle className="text-lg md:text-xl">{project?.project.title}</CardTitle>
+                        <CardDescription>{new Date(project.savedAt).toLocaleDateString()}</CardDescription>
+                        </CardHeader>
+                        <CardContent className="space-y-4">
+                          <div>
+                            <p className="text-sm font-semibold mb-2">Languages</p>
+                            <div className="flex flex-wrap gap-2">
+                              {project?.project?.programmingLanguage!.map((lang, idx) => (
+                                <Badge key={idx} variant="secondary" className="bg-gradient-to-bl from-blue-800 to-green-900">
+                                  {`${project?.project?.programmingLanguage}  `} 
+                                </Badge>
+                              ))}
+                            </div>
                           </div>
-                        </div>
-                        <div>
-                          <p className="text-sm font-semibold mb-2">Tech Stack</p>
-                          <div className="flex flex-wrap gap-2">
-                            {project.techStack.map((tech, idx) => (
-                              <Badge key={idx} variant="outline">
-                                {tech}
-                              </Badge>
-                            ))}
+                          <div>
+                            <p className="text-sm font-semibold mb-2">Tech Stack</p>
+                            <div className="flex flex-wrap gap-2">
+                              {project?.project?.techStack!.map((tech, idx) => (
+                                <Badge key={idx} variant="outline" className="bg-gradient-to-bl from-purple-950 to-pink-500">
+                                  {tech}
+                                </Badge>
+                              ))}
+                            </div>
                           </div>
-                        </div>
-                      </CardContent>
-                    </Card>
+                        </CardContent>
+                      </Card>
+                    </SpotlightCard>
                   ))}
                 </div>
               </div>

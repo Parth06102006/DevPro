@@ -69,6 +69,15 @@ export const saveProject = async(sessionId:string,projectId:string):Promise<ApiR
   }
 }
 
+export const savedProjectList = async():Promise<ApiResponse>=>{
+  try {
+    const response = await api.get(`/projects/savedList`);
+    return response.data;
+  } catch (error: any) {
+    throw new Error(error.response?.data?.message || 'Unable to Save Project');
+  }
+}
+
 // Utility function to handle API errors
 export const handleApiError = (error: any): string => {
   if (error.response?.data?.message) {

@@ -326,11 +326,29 @@ const saveProject = asyncHandler(async(req,res)=>{
         data:{
             //@ts-ignore
             userId:req.user,
-            projectId:existingProject.id
+            projectId:existingProject.id,
         }
     })
 
     return res.status(200).json(new ApiResponse(200,"Project Saved Successfully",project_saved))
+})
+
+const getSavedProjectList = asyncHandler(async(req,res)=>{
+
+    try {
+    const project_saved_list = await prisma.savedProject.findMany({
+        where:{
+            //@ts-ignore
+            userId:req.user,
+        },
+        include:{
+            project:true
+        }
+    })
+        return res.status(200).json(new ApiResponse(200,"Saved Project List Fetched Successfully",project_saved_list))
+    } catch (error) {
+        throw new ApiError(500,"Error Fetching Saved Project List")
+    }
 })
 
 const getProjectInfo = asyncHandler(async(req,res)=>{
@@ -535,4 +553,4 @@ const getUserProjectProfileInfo = asyncHandler(async(req,res)=>{
 
 })
 
-export {generateProjects,createProject,saveProject,getProjectInfo,getGeneratedProjectList,getUserProjectProfileInfo}
+export {generateProjects,createProject,saveProject,getSavedProjectList,getProjectInfo,getGeneratedProjectList,getUserProjectProfileInfo}
