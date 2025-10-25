@@ -88,7 +88,7 @@ function SavedProjects() {
                             <div className="flex flex-wrap gap-2">
                               {project?.project?.programmingLanguage!.map((lang, idx) => (
                                 <Badge key={idx} variant="secondary" className="bg-gradient-to-bl from-blue-800 to-green-900">
-                                  {`${project?.project?.programmingLanguage}  `} 
+                                  {`${lang}  `} 
                                 </Badge>
                               ))}
                             </div>
