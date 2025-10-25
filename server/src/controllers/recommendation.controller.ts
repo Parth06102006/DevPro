@@ -4,6 +4,127 @@ import asyncHandler from "../utils/asyncHandler.js";
 import ApiError from "../utils/ApiError.js";
 import ApiResponse from "../utils/ApiResponse.js";
 
+const generateResponse = asyncHandler(async(req,res)=>{
+    const {question} = req.body;
+
+    if(!question.trim()) throw new ApiError(400,"No Question Received")
+
+    try {
+            const user_info = await prisma.user.findUnique({
+        where:{
+            //@ts-ignore
+            id:req.user
+        },
+        select:{
+            id:false,
+            name:true,
+            email:false,
+            createdAt:false,
+            updatedAt:false,
+            sessions:{
+                select:{
+                    id:true,
+                    userId:false,
+                    sessionToken:false,
+                    inputLanguage:true,
+                    inputTechStack:true,
+                    createdAt:true,
+                    updatedAt:true,
+                    generatedProjects:true
+                }
+            },
+            createdProjects:{
+                select:{
+                    id:false,
+                    title:true,
+                    description:true,
+                    difficulty:true,
+                    techStack:true,
+                    programmingLanguage:true,
+                    implementationSteps:true,
+                    createdById:false,
+                    createdAt:true,
+                    updatedAt:true,
+                    recommendationByAI:true,
+                    projectAnswers:true
+                }
+            },
+            savedProjects:true
+        }
+    })
+
+    if(!user_info) throw new ApiError(404,"User Data Not Found");
+
+
+        const system_prompt = `You are a helpful AI assistant for DevPro, an intelligent web application that helps developers escape "Tutorial Hell" by providing personalized project recommendations with detailed implementation steps.
+
+        About DevPro Platform:
+        DevPro is designed to solve a critical problem: many aspiring developers get stuck in "Tutorial Hell" - endlessly watching tutorials without building real projects. DevPro uses AI (powered by DeepSeek) to generate tailored project ideas based on users' chosen programming languages or tech stacks, complete with:
+        - Difficulty-based project filtering (BEGINNER, INTERMEDIATE, ADVANCED)
+        - Step-by-step implementation guidance
+        - Multi-stack support
+        - Project tracking and management
+        - AI-powered Q&A for each project
+
+        Current User Context:
+        - User Name: ${user_info?.name}
+        - Total Sessions: ${user_info?.sessions.length}
+        - Projects Created: ${user_info?.createdProjects.length}
+        - Saved Projects: ${user_info?.savedProjects.length}
+
+        User's Recent Activity:
+        ${user_info?.sessions.length > 0 
+        ? `- Latest session used: ${user_info?.sessions[0]?.inputLanguage || 'N/A'} (${user_info?.sessions[0]?.inputTechStack || 'N/A'})`
+        : '- No sessions yet'}
+        ${user_info?.createdProjects.length > 0
+        ? `- Recent projects: ${user_info?.createdProjects.slice(0, 3).map(p => p.title).join(', ')}`
+        : '- No projects created yet'}
+
+        Your Role:
+        Also Only Answer to the Question in a apt format and lines and short to make the question clear and understandable and if the question is related to any of the following sub-topics or sub-headers answer only the chosen headers for the question asked by client :
+        1. Help users understand how to use the DevPro platform
+        2. Answer questions about features, navigation, and functionality
+        3. Explain how to create, save, and manage projects
+        4. Guide users on how to get the most out of the AI recommendations
+        5. Provide information about project difficulty levels and tech stacks
+        6. Help users understand their dashboard, sessions, and project history
+        7. Encourage users to actively build projects rather than just consuming tutorials
+        8. Assist with account-related questions and platform navigation
+
+        Guidelines:
+        - Be friendly, supportive, and encouraging
+        - Focus on platform functionality and user guidance
+        - Do NOT provide specific coding help or project implementation details (that's handled by project-specific Q&A)
+        - Direct users to the appropriate features when needed
+        - Emphasize the platform's mission: breaking free from Tutorial Hell through hands-on building
+        - Keep responses concise and action-oriented
+        - If asked about technical implementation of projects, suggest using the project-specific Q&A feature
+        - Personalize responses based on user's activity level (new user vs. active user)`;
+
+        const user_prompt = `User Question: ${question}
+
+        Please provide a helpful answer about the DevPro platform, its features, or how to use it effectively.`;
+
+        
+        const messages = [
+            { role: "system", content: system_prompt },
+            { role: "user", content: user_prompt }
+        ]
+
+        const result = await openai.chat.completions.create({
+            model:"deepseek/deepseek-r1-0528-qwen3-8b:free",
+            messages:messages as any,
+        })
+
+        const response = result.choices[0]?.message
+
+        return res.status(200).json(new ApiResponse(200,"Generated Response for the User",response))
+    } catch (error) {
+        throw new ApiError(500,"Cannot Generate Response")
+    }
+
+})
+
 const generateSuggestions = asyncHandler(async(req,res)=>{
     const {projectId} = req.query;
     const {sessionId} = req.params;
@@ -315,4 +436,4 @@ const getMessages = asyncHandler(async(req,res)=>{
     return res.status(200).json(new ApiResponse(200,"Generated Answer Successfully",chat));
 })
 
-export {generateSuggestions,generateAnswer,getMessages}
+export {generateSuggestions,generateResponse,generateAnswer,getMessages}

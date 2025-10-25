@@ -25,6 +25,15 @@ export const createAnswer = async (sessionId: string, question: string,projectId
   }
 };
 
+export const createResponse = async (): Promise<ApiResponse> => {
+  try {
+    const response = await api.post(`/recommendations/response`);
+    return response.data;
+  } catch (error: any) {
+    throw new Error(error.response?.data?.message || 'Error Generating Response');
+  }
+};
+
 // Get all chats for a session
 export const getChats = async (sessionId: string,projectId:string): Promise<ApiResponse> => {
   try {
