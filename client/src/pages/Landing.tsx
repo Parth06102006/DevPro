@@ -233,16 +233,16 @@ function Landing() {
           <RotatingText
             texts={[
               [
-                { text: "Build ", highlight: false },
-                { text: "smarter.", highlight: true },
-              ],
-              [
-                { text: "Code ", highlight: false },
-                { text: "faster.", highlight: true },
-              ],
-              [
                 { text: "Learn ", highlight: false },
-                { text: "deeper.", highlight: true },
+                { text: "by building.", highlight: true },
+              ],
+              [
+                { text: "Break ", highlight: false },
+                { text: "tutorial hell.", highlight: true },
+              ],
+              [
+                { text: "Ship ", highlight: false },
+                { text: "real projects.", highlight: true },
               ],
             ]}
             rotationInterval={6000}
