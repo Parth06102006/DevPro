@@ -25,9 +25,9 @@ export const createAnswer = async (sessionId: string, question: string,projectId
   }
 };
 
-export const createResponse = async (): Promise<ApiResponse> => {
+export const createResponse = async (question:string): Promise<ApiResponse> => {
   try {
-    const response = await api.post(`/recommendations/response`);
+    const response = await api.post(`/recommendations/response`,{question});
     return response.data;
   } catch (error: any) {
     throw new Error(error.response?.data?.message || 'Error Generating Response');

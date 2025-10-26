@@ -130,7 +130,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       </SidebarHeader>
       <SidebarContent className="bg-gradient-to-b from-[#0a0f2d] via-[#081a3a] to-[#020617] border-r border-white/10 text-white shadow-[inset_0_0_30px_rgba(0,102,255,0.15)] p-3">
         <NavMain items={data.navMain} />
-        <Input text="Ask , Search or Chat..."/>
+        <Input text="Ask , Search or Chat..." />
         <div className="self-center pt-5 h-fit w-fit relative">
           <img
             src="/asset4.png"
