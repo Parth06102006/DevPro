@@ -11,6 +11,7 @@ import toast from "react-hot-toast"
 import { Card, CardContent } from "@/components/ui/card"
 import ReactMarkdown from "react-markdown"
 import remarkGfm from "remark-gfm"
+import { LoaderOne } from "@/components/ui/loader";
 
 type InputProps = {
     text:string
@@ -30,11 +31,14 @@ const [isLoading, setIsLoading] = useState(true)
   async function handleResponse()
   {
     try {
+      setIsLoading(true)
       const response = await createResponse(props.text);
-      console.log(response?.data?.content)
       setResponse(response?.data?.content)
+      setIsLoading(false)
     } catch (error) {
       toast.error('Error Generating Response')
+      setResponse("Sorry , not able to generate the response")
+      setIsLoading(false)
     }
   }
 
@@ -55,11 +59,17 @@ const [isLoading, setIsLoading] = useState(true)
         </InputGroupAddon>
       </InputGroup>
          <Card className="bg-slate-900 border-slate-800 text-slate-100">
-      <CardContent className="p-4 max-h-[400px] overflow-y-auto">
-        <ReactMarkdown remarkPlugins={[remarkGfm]}>
-          {response}
-        </ReactMarkdown>
-      </CardContent>
+        <CardContent className="p-4 max-h-[400px] overflow-y-auto">
+          {isLoading ? (
+            <div className="flex justify-center items-center">
+              <LoaderOne />
+            </div>
+          ) : (
+            <ReactMarkdown remarkPlugins={[remarkGfm]}>
+              {response || ""}
+            </ReactMarkdown>
+          )}
+        </CardContent>
     </Card>
     </div>
   )
