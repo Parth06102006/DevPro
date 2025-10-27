@@ -111,7 +111,13 @@ const logout = asyncHandler(async(req,res)=>{
     //@ts-ignore
     const userId = req.user;
 
-    return res.status(200).clearCookie("token").json(new ApiResponse(200,"User Logged Out Successfully"))
+    const options = {
+        httpOnly:true,
+        sameSite: (process.env.NODE_ENV === "production" ? "none" : "lax") as "none" | "lax",
+        secure: (process.env.NODE_ENV === "production"),
+    }
+
+    return res.status(200).clearCookie("token",options).json(new ApiResponse(200,"User Logged Out Successfully"))
 })
 
 const checkAuth = asyncHandler(async(req,res)=>{
