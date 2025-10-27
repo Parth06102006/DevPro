@@ -483,6 +483,9 @@ const getUserProjectProfileInfo = asyncHandler(async(req,res)=>{
 
         const topProjects = await prisma.project.findMany({
             take: 5,
+            where:{
+                createdById:user
+            },
             include: {
             _count: {
                 select: {
@@ -499,12 +502,18 @@ const getUserProjectProfileInfo = asyncHandler(async(req,res)=>{
 
         const sessionCounts = await prisma.session.groupBy({
             by: ['createdAt'],
+            where:{
+                userId:user
+            },
             _count: { _all: true },
             orderBy: { createdAt: 'asc' }
         })
 
         const projectCount = await prisma.project.groupBy({
             by: ['createdAt'],
+            where:{
+                createdById:user
+            },
             _count: { _all: true },
             orderBy: { createdAt: 'asc' }
         })
