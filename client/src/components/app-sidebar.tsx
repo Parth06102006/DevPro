@@ -5,13 +5,10 @@ import {
   IconFileAi,
   IconFileDescription,
   IconFolder,
-  IconHelp,
   IconListDetails,
-  IconSettings,
 } from "@tabler/icons-react"
 
 import { NavMain } from "@/components/nav-main"
-import { NavSecondary } from "@/components/nav-secondary"
 import { NavUser } from "@/components/nav-user"
 import {
   Sidebar,
@@ -24,11 +21,20 @@ import {
 } from "@/components/ui/sidebar"
 import Input from "@/components/Input"
 import { Link } from "react-router-dom"
+import { useAuth } from "@/contexts/AuthContext"
 
-const data = {
+
+
+export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+
+  const {user} = useAuth();
+
+  if(!user) return 
+
+  const data = {
   user: {
-    name: "shadcn",
-    email: "m@example.com",
+    name: `${user.name || "User"}`,
+    email: `${user.email || "user@mail.com"}`,
     avatar: "/avatars/shadcn.jpg",
   },
   navMain: [
@@ -89,28 +95,15 @@ const data = {
           title: "Active Proposals",
           url: "#",
         },
-        {
-          title: "Archived",
-          url: "#",
-        },
-      ],
-    },
-  ],
-  navSecondary: [
-    {
-      title: "Settings",
-      url: "#",
-      icon: IconSettings,
-    },
-    {
-      title: "Get Help",
-      url: "#",
-      icon: IconHelp,
-    },
-  ],
-}
+          {
+            title: "Archived",
+            url: "#",
+          },
+        ],
+      },
+    ],
 
-export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+  }
   return (
     <Sidebar collapsible="offcanvas" {...props}>
       <SidebarHeader className="bg-slate-950 text-white rounded-t-md">
@@ -128,18 +121,12 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           </SidebarMenuItem>
         </SidebarMenu>
       </SidebarHeader>
-      <SidebarContent className="bg-gradient-to-b from-[#0a0f2d] via-[#081a3a] to-[#020617] border-r border-white/10 text-white shadow-[inset_0_0_30px_rgba(0,102,255,0.15)] p-3">
+      <SidebarContent className="bg-gradient-to-b from-[#0a0f2d] via-[#081a3a] to-[#020617] border-r border-white/10 text-white shadow-[inset_0_0_30px_rgba(0,102,255,0.15)] p-3 text-sm">
         <NavMain items={data.navMain} />
         <Input text="Ask , Search or Chat..." />
         <div className="self-center pt-5 h-fit w-fit relative">
-          <img
-            src="/asset4.png"
-            alt=""
-            className="w-40 h-30 object-contain "
-          />
           <div className="absolute inset-0 bg-transparent bg-opacity-70 rounded-3xl mix-blend-saturation" />
         </div>
-        <NavSecondary items={data.navSecondary} className="mt-auto" />
       </SidebarContent>
       <SidebarFooter className="bg-black rounded-b-2xl border-r border-white/10 text-white">
         <NavUser user={data.user} />

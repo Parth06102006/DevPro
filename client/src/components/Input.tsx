@@ -26,16 +26,16 @@ const [isLoading, setIsLoading] = useState(true)
     setIsLoading(true);
     setText(text)
     setIsLoading(false);
-  },[props.text])
+  },[text])
 
   async function handleResponse()
   {
     try {
       setIsLoading(true)
-      const response = await createResponse(props.text);
+      const response = await createResponse(text);
       setResponse(response?.data?.content)
       setIsLoading(false)
-    } catch (error) {
+    } catch {
       toast.error('Error Generating Response')
       setResponse("Sorry , not able to generate the response")
       setIsLoading(false)
@@ -58,19 +58,22 @@ const [isLoading, setIsLoading] = useState(true)
           </InputGroupButton>
         </InputGroupAddon>
       </InputGroup>
-         <Card className="bg-slate-900 border-slate-800 text-slate-100">
+      {
+        (response || isLoading ) &&
+         <Card className="bg-slate-500 border-slate-800 text-slate-900">
         <CardContent className="p-4 max-h-[400px] overflow-y-auto">
           {isLoading ? (
             <div className="flex justify-center items-center">
               <LoaderOne />
             </div>
           ) : (
-            <ReactMarkdown remarkPlugins={[remarkGfm]}>
-              {response || ""}
-            </ReactMarkdown>
-          )}
-        </CardContent>
-    </Card>
+                <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                  {response}
+                </ReactMarkdown>
+            )}
+          </CardContent>
+      </Card>
+      }
     </div>
   )
 }

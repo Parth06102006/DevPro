@@ -6,7 +6,7 @@ import ApiResponse from "../utils/ApiResponse.js";
 
 const generateResponse = asyncHandler(async(req,res)=>{
     const {question} = req.body;
-
+    console.log("QUESTION : ",question)
     if(!question.trim()) throw new ApiError(400,"No Question Received")
 
     try {
@@ -59,7 +59,7 @@ const generateResponse = asyncHandler(async(req,res)=>{
         const system_prompt = `You are a helpful AI assistant for DevPro, an intelligent web application that helps developers escape "Tutorial Hell" by providing personalized project recommendations with detailed implementation steps.
 
         About DevPro Platform:
-        DevPro is designed to solve a critical problem: many aspiring developers get stuck in "Tutorial Hell" - endlessly watching tutorials without building real projects. DevPro uses AI (powered by DeepSeek) to generate tailored project ideas based on users' chosen programming languages or tech stacks, complete with:
+        DevPro is designed to solve a critical problem: many aspiring developers get stuck in "Tutorial Hell" - endlessly watching tutorials without building real projects. DevPro uses AI (powered by Grok) to generate tailored project ideas based on users' chosen programming languages or tech stacks, complete with:
         - Difficulty-based project filtering (BEGINNER, INTERMEDIATE, ADVANCED)
         - Step-by-step implementation guidance
         - Multi-stack support
@@ -112,11 +112,12 @@ const generateResponse = asyncHandler(async(req,res)=>{
         ]
 
         const result = await openai.chat.completions.create({
-            model:"deepseek/deepseek-r1-0528-qwen3-8b:free",
+            model:"x-ai/grok-4.1-fast:free",
             messages:messages as any,
         })
 
         const response = result.choices[0]?.message
+        console.log(`RESPONSE : ${response}`)
 
         return res.status(200).json(new ApiResponse(200,"Generated Response for the User",response))
     } catch (error) {
@@ -221,7 +222,7 @@ const generateSuggestions = asyncHandler(async(req,res)=>{
     ]
 
     const response = await openai.chat.completions.create({
-        model:"deepseek/deepseek-r1-0528-qwen3-8b:free",
+        model:"x-ai/grok-4.1-fast:free",
         messages:messages as any,
         response_format: {
             "type": "json_object"
@@ -346,7 +347,7 @@ const generateAnswer = asyncHandler(async(req,res)=>{
     ]
 
     const response = await openai.chat.completions.create({
-    model: "deepseek/deepseek-r1-0528-qwen3-8b:free",
+    model: "x-ai/grok-4.1-fast:free",
     messages: messages as any,
     response_format: { type: "json_object" }
     });

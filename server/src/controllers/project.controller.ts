@@ -91,7 +91,7 @@ const generateProjects = asyncHandler(async(req,res)=>{
 
         const response = await openai.chat.completions.create(
             {
-                model: "deepseek/deepseek-r1-0528-qwen3-8b:free",
+                model: "x-ai/grok-4.1-fast:free",
                 messages: messages as any,
                 response_format: {
                     "type": "json_object"
@@ -220,7 +220,7 @@ const createProject = asyncHandler(async(req,res)=>{
 
         const response = await openai.chat.completions.create(
             {
-                model: "deepseek/deepseek-r1-0528-qwen3-8b:free",
+                model: "x-ai/grok-4.1-fast:free",
                 messages: messages as any,
                 response_format: {
                     "type": "json_object"
