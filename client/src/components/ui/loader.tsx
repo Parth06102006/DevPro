@@ -5,9 +5,9 @@ export const LoaderOne = () => {
   const transition = (x: number) => ({
     duration: 1,
     repeat: Infinity,
-    repeatType: "loop" as const,
+    repeatType: "loop",
     delay: x * 0.2,
-    ease: "easeInOut",
+    ease: "easeInOut" as const,
   });
 
   return (
@@ -30,9 +30,9 @@ export const LoaderTwo = () => {
   const transition = (x: number) => ({
     duration: 2,
     repeat: Infinity,
-    repeatType: "loop" as const,
+    repeatType: "loop",
     delay: x * 0.2,
-    ease: "easeInOut",
+    ease: "easeInOut" as const,
   });
 
   return (
@@ -63,12 +63,11 @@ export const LoaderThree = () => {
       strokeWidth="1"
       strokeLinecap="round"
       strokeLinejoin="round"
-      className="h-20 w-20 stroke-neutral-500 [--fill-final:var(--color-yellow-300)] [--fill-initial:var(--color-neutral-50)] dark:stroke-neutral-100 dark:[--fill-final:var(--color-yellow-500)] dark:[--fill-initial:var(--color-neutral-800)]"
     >
       <motion.path stroke="none" d="M0 0h24v24H0z" fill="none" />
       <motion.path
-        initial={{ pathLength: 0, fill: "var(--fill-initial)" }}
-        animate={{ pathLength: 1, fill: "var(--fill-final)" }}
+        initial={{ pathLength: 0 }}
+        animate={{ pathLength: 1 }}
         transition={{
           duration: 2,
           ease: "easeInOut",
@@ -84,10 +83,12 @@ export const LoaderThree = () => {
 // =================== Loader Four ===================
 export const LoaderFour = ({ text = "Loading..." }: { text?: string }) => {
   return (
-    <div className="relative font-bold text-black [perspective:1000px] dark:text-white">
-      {/* Main text */}
+    <div className="relative font-bold text-black dark:text-white">
       <motion.span
-        animate={{ skew: [0, -40, 0], scaleX: [1, 2, 1] }}
+        animate={{
+          transform: ["skew(0deg)", "skew(-40deg)", "skew(0deg)"],
+          scaleX: [1, 2, 1],
+        }}
         transition={{
           duration: 0.05,
           repeat: Infinity,
@@ -96,14 +97,12 @@ export const LoaderFour = ({ text = "Loading..." }: { text?: string }) => {
           ease: "linear",
           times: [0, 0.2, 0.5, 0.8, 1],
         }}
-        className="relative z-20 inline-block"
       >
         {text}
       </motion.span>
 
-      {/* Neon green shadow */}
       <motion.span
-        className="absolute inset-0 text-[#00e571]/50 blur-[0.5px] dark:text-[#00e571]"
+        className="absolute inset-0 text-[#00e571]/50 blur-[0.5px]"
         animate={{
           x: [-2, 4, -3, 1.5, -2],
           y: [-2, 4, -3, 1.5, -2],
@@ -114,26 +113,6 @@ export const LoaderFour = ({ text = "Loading..." }: { text?: string }) => {
           repeat: Infinity,
           repeatType: "reverse",
           ease: "linear",
-          times: [0, 0.2, 0.5, 0.8, 1],
-        }}
-      >
-        {text}
-      </motion.span>
-
-      {/* Purple neon shadow */}
-      <motion.span
-        className="absolute inset-0 text-[#8b00ff]/50 dark:text-[#8b00ff]"
-        animate={{
-          x: [0, 1, -1.5, 1.5, -1, 0],
-          y: [0, -1, 1.5, -0.5, 0],
-          opacity: [0.4, 0.8, 0.3, 0.9, 0.4],
-        }}
-        transition={{
-          duration: 0.8,
-          repeat: Infinity,
-          repeatType: "reverse",
-          ease: "linear",
-          times: [0, 0.3, 0.6, 0.8, 1],
         }}
       >
         {text}
@@ -145,7 +124,7 @@ export const LoaderFour = ({ text = "Loading..." }: { text?: string }) => {
 // =================== Loader Five ===================
 export const LoaderFive = ({ text }: { text: string }) => {
   return (
-    <div className="font-sans font-bold [--shadow-color:var(--color-neutral-500)] dark:[--shadow-color:var(--color-neutral-100)]">
+    <div className="font-sans font-bold">
       {text.split("").map((char, i) => (
         <motion.span
           key={i}
@@ -153,11 +132,6 @@ export const LoaderFive = ({ text }: { text: string }) => {
           initial={{ scale: 1, opacity: 0.5 }}
           animate={{
             scale: [1, 1.1, 1],
-            textShadow: [
-              "0 0 0 var(--shadow-color)",
-              "0 0 1px var(--shadow-color)",
-              "0 0 0 var(--shadow-color)",
-            ],
             opacity: [0.5, 1, 0.5],
           }}
           transition={{
