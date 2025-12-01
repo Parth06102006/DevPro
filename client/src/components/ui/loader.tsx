@@ -5,7 +5,7 @@ export const LoaderOne = () => {
   const transition = (x: number) => ({
     duration: 1,
     repeat: Infinity,
-    repeatType: "loop",
+    repeatType: "loop" as const,
     delay: x * 0.2,
     ease: "easeInOut" as const,
   });
@@ -30,7 +30,7 @@ export const LoaderTwo = () => {
   const transition = (x: number) => ({
     duration: 2,
     repeat: Infinity,
-    repeatType: "loop",
+    repeatType: "loop" as const,
     delay: x * 0.2,
     ease: "easeInOut" as const,
   });
