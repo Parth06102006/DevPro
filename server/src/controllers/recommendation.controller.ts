@@ -112,7 +112,7 @@ const generateResponse = asyncHandler(async(req,res)=>{
         ]
 
         const result = await openai.chat.completions.create({
-            model:"x-ai/grok-4.1-fast:free",
+            model:"meta-llama/llama-3.3-70b-instruct:free",
             messages:messages as any,
         })
 
@@ -222,7 +222,7 @@ const generateSuggestions = asyncHandler(async(req,res)=>{
     ]
 
     const response = await openai.chat.completions.create({
-        model:"x-ai/grok-4.1-fast:free",
+        model:"meta-llama/llama-3.3-70b-instruct:free",
         messages:messages as any,
         response_format: {
             "type": "json_object"
@@ -347,7 +347,7 @@ const generateAnswer = asyncHandler(async(req,res)=>{
     ]
 
     const response = await openai.chat.completions.create({
-    model: "x-ai/grok-4.1-fast:free",
+    model: "meta-llama/llama-3.3-70b-instruct:free",
     messages: messages as any,
     response_format: { type: "json_object" }
     });
